@@ -39,6 +39,10 @@ public class Constants
 
     public static final String NEW_LINE_SEPARATOR = "\n";
 
+    public static final String SSL_KEYSTORE_PATH = "sslKeyStorePath";
+
+    public static final String SSL_KEYSTORE_PASSWORD = "sslKeyStorePassword";
+
 
 
 }

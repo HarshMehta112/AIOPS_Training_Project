@@ -26,6 +26,26 @@ public class ConfigurationService
 
     private static String loginPassword;
 
+    public static String getSslKeystorePath() {
+        return sslKeystorePath;
+    }
+
+    public static void setSslKeystorePath(String sslKeystorePath) {
+        ConfigurationService.sslKeystorePath = sslKeystorePath;
+    }
+
+    public static String getSslKeystorePassword() {
+        return sslKeystorePassword;
+    }
+
+    public static void setSslKeystorePassword(String sslKeystorePassword) {
+        ConfigurationService.sslKeystorePassword = sslKeystorePassword;
+    }
+
+    private static String sslKeystorePath;
+
+    private static String sslKeystorePassword;
+
     private ConfigurationService() {}
 
     public static String getLoginUsername() {
@@ -77,6 +97,10 @@ public class ConfigurationService
 
             LoggerUtil.setDebugEnabled(Boolean.parseBoolean(properties.getProperty
                             (Constants.DEBUG_LOG_FLAG)));
+
+            setSslKeystorePath(properties.getProperty(Constants.SSL_KEYSTORE_PATH));
+
+            setSslKeystorePassword(properties.getProperty(Constants.SSL_KEYSTORE_PASSWORD));
 
             // Get paths for public and private keys
             var publicKeyPath = properties.getProperty("publicKeyPath");

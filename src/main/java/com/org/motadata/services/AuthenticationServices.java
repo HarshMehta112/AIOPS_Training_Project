@@ -43,7 +43,7 @@ public class AuthenticationServices
             var accessToken = ConfigurationService.getJwtAuth().generateToken(
                     new JsonObject().put(Constants.USER_NAME,username),
                     new JWTOptions().setAlgorithm(Constants.JWT_TOKEN_ALGORITHM)
-                            .setExpiresInSeconds(3600));
+                            .setExpiresInSeconds(30));
 
             var refreshToken = UUID.randomUUID().toString();
 
