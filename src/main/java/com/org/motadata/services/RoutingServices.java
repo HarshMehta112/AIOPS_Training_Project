@@ -30,7 +30,7 @@ public class RoutingServices extends AbstractVerticle
         apiRouter.post("/login").handler(AuthenticationServices::loginHandler);
 
         // Protected route with JWT authentication
-        apiRouter.route("/*").handler(this::authHandler);
+        apiRouter.route("/*").handler(AuthenticationServices::authHandler);
 
         // Actual protected endpoint
         apiRouter.post("/test").handler(ctx ->
@@ -57,68 +57,6 @@ public class RoutingServices extends AbstractVerticle
 
     }
 
-    // Custom authentication handler
-    private void authHandler(RoutingContext routingContext)
-    {
-        var authHeader = routingContext.request().getHeader("Authorization");
-
-        if (authHeader != null && authHeader.startsWith("Bearer "))
-        {
-            var token = authHeader.substring(7); // Remove "Bearer " prefix
-
-            if (token.isEmpty())
-            {
-                routingContext.response().setStatusCode(Constants.HTTP_UNAUTHORIZED_STATUS_CODE)
-                        .end("Unauthorized: Token is empty.");
-                return;
-            }
-
-            ConfigurationService.getJwtAuth().authenticate(new TokenCredentials(token), res ->
-            {
-                if (res.succeeded())
-                {
-                    routingContext.next(); // Authentication succeeded, proceed to the next handler
-                }
-                else
-                {
-                    String refreshToken = AuthenticationServices.getRefreshTokenStore().get("admin");
-
-                    if(isTokenExpired(refreshToken.split(Constants.VALUE_SEPARATOR_WITH_ESCAPE)[1]))
-                    {
-                        AuthenticationServices.refreshTokenHandler(routingContext,refreshToken);
-                    }
-                    else
-                    {
-                        routingContext.response().setStatusCode(404).end("Unauthorized: Invalid token provided.");
-
-                        LOGGER.error("Some error occurred in API Authentication process " + res.cause().getMessage(),res.cause().getStackTrace());
-                    }
-                }
-            });
-        }
-        else
-        {
-            routingContext.response().setStatusCode(Constants.HTTP_UNAUTHORIZED_STATUS_CODE).end("Unauthorized: No token provided.");
-
-            LOGGER.warn("Wrong Bearer Token received in API Authentication process ");
-
-        }
-    }
-
-    private boolean isTokenExpired(String generatedDate)
-    {
-        LocalDateTime pastDateTime = LocalDateTime.parse(generatedDate);
-
-        LocalDateTime currentDateTime = LocalDateTime.now();
-
-        Duration duration = Duration.between(pastDateTime, currentDateTime);
-
-        long seconds = duration.getSeconds();
-
-        LOGGER.info("Duration of access token : " + seconds + " seconds.");
-
-        return seconds >= 30;
-    }
 
 
 }

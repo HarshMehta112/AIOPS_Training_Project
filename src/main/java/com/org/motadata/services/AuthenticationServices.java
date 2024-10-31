@@ -5,7 +5,10 @@ import com.org.motadata.utils.Constants;
 import com.org.motadata.utils.LoggerUtil;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.auth.JWTOptions;
+import io.vertx.ext.auth.authentication.TokenCredentials;
 import io.vertx.ext.web.RoutingContext;
+
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
@@ -91,5 +94,68 @@ public class AuthenticationServices
         {
             routingContext.response().setStatusCode(Constants.HTTP_UNAUTHORIZED_STATUS_CODE).end("Unauthorized: Invalid refresh token.");
         }
+    }
+
+    // Custom authentication handler
+    public static void authHandler(RoutingContext routingContext)
+    {
+        var authHeader = routingContext.request().getHeader("Authorization");
+
+        if (authHeader != null && authHeader.startsWith("Bearer "))
+        {
+            var token = authHeader.substring(7); // Remove "Bearer " prefix
+
+            if (token.isEmpty())
+            {
+                routingContext.response().setStatusCode(Constants.HTTP_UNAUTHORIZED_STATUS_CODE)
+                        .end("Unauthorized: Token is empty.");
+                return;
+            }
+
+            ConfigurationService.getJwtAuth().authenticate(new TokenCredentials(token), res ->
+            {
+                if (res.succeeded())
+                {
+                    routingContext.next(); // Authentication succeeded, proceed to the next handler
+                }
+                else
+                {
+                    String refreshToken = AuthenticationServices.getRefreshTokenStore().get("admin");
+
+                    if(isTokenExpired(refreshToken.split(Constants.VALUE_SEPARATOR_WITH_ESCAPE)[1]))
+                    {
+                        AuthenticationServices.refreshTokenHandler(routingContext,refreshToken);
+                    }
+                    else
+                    {
+                        routingContext.response().setStatusCode(404).end("Unauthorized: Invalid token provided.");
+
+                        LOGGER.error("Some error occurred in API Authentication process " + res.cause().getMessage(),res.cause().getStackTrace());
+                    }
+                }
+            });
+        }
+        else
+        {
+            routingContext.response().setStatusCode(Constants.HTTP_UNAUTHORIZED_STATUS_CODE).end("Unauthorized: No token provided.");
+
+            LOGGER.warn("Wrong Bearer Token received in API Authentication process ");
+
+        }
+    }
+
+    public static boolean isTokenExpired(String generatedDate)
+    {
+        LocalDateTime pastDateTime = LocalDateTime.parse(generatedDate);
+
+        LocalDateTime currentDateTime = LocalDateTime.now();
+
+        Duration duration = Duration.between(pastDateTime, currentDateTime);
+
+        long seconds = duration.getSeconds();
+
+        LOGGER.info("Duration of access token : " + seconds + " seconds.");
+
+        return seconds >= 30;
     }
 }
