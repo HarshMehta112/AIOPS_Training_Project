@@ -28,8 +28,13 @@ public class DatabaseServiceImpl implements DatabaseService
 
     @Override
     public DatabaseService executeQuery(String query, JsonObject params, Handler<AsyncResult<Void>> resultHandler) {
+
         Tuple tuple = Tuple.tuple();
-        params.forEach(entry -> tuple.addValue(entry.getValue()));
+
+        if (params != null)
+        {
+            params.forEach(entry -> tuple.addValue(entry.getValue()));
+        }
 
         pool.withConnection(connection -> connection
                 .preparedQuery(query)

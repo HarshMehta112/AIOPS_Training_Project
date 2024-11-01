@@ -120,12 +120,110 @@ public class CredentialProfileEngine implements InitializeRouter, CrudOperations
     }
 
     @Override
-    public void update(RoutingContext routingContext) {
+    public void update(RoutingContext routingContext)
+    {
+        try
+        {
+            // check any param is there otherwise return
+            var credentialContext = routingContext.body().asJsonObject();
 
+            var credentialId = routingContext.request().getParam(Constants.ID);
+
+            if(credentialContext != null)
+            {
+                var queryBuildContext = new JsonObject();
+
+                queryBuildContext.put(Constants.DB_OPERATION_TYPE,Constants.UPDATE_OPERATION);
+
+                queryBuildContext.put(Constants.DB_TABLE_NAME,Constants.CREDENTIAL_PROFILE_TABLE);
+
+                queryBuildContext.put(Constants.DB_CONDITIONS,CommonUtil.buildString("id = ", credentialId));
+
+                if (credentialContext.containsKey(Constants.SSH_PASSWORD))
+                {
+                    credentialContext.put(Constants.SSH_PASSWORD,CommonUtil.encrypt(credentialContext.getString(Constants.SSH_PASSWORD)));
+                }
+
+                queryBuildContext.put(Constants.DB_VALUES,credentialContext);
+
+                Bootstrap.getVertx().eventBus().<String>request(Constants.QUERY_BUILD_REQUEST,queryBuildContext, queryBuilderReply->
+                {
+                    if(queryBuilderReply.succeeded())
+                    {
+                        queryBuildContext.put(Constants.QUERY,queryBuilderReply.result().body());
+
+                        Bootstrap.getVertx().eventBus().<Boolean>request(Constants.DB_REQUESTS,queryBuildContext, dbOperationReply ->
+                        {
+                            var responseMessage = Boolean.TRUE.equals(dbOperationReply.result().body())
+                                    ? "Credential Profile updated successfully..."
+                                    : "Credential Profile not updated. Please try again...";
+
+                            routingContext.response()
+                                    .putHeader(Constants.CONTENT_TYPE, Constants.CONTENT_TYPE_TEXT_PLAIN)
+                                    .end(responseMessage);
+                        });
+                    }
+                });
+            }
+            else
+            {
+                credentialContext = new JsonObject();
+
+                credentialContext.put(Constants.CREDENTIAL_PROFILE_NAME, "").put(Constants.SSH_USERNAME,"")
+                        .put(Constants.SSH_PASSWORD,"");
+
+                routingContext.response()
+                        .putHeader(Constants.CONTENT_TYPE, Constants.CONTENT_TYPE_TEXT_PLAIN)
+                        .end("You must enter one of the following details to update credential profile.\n" + credentialContext.encodePrettily());
+            }
+        }
+        catch (Exception exception)
+        {
+            LOGGER.error(exception.getMessage(),exception.getStackTrace());
+        }
     }
 
     @Override
-    public void delete(RoutingContext routingContext) {
+    public void delete(RoutingContext routingContext)
+    {
+        try
+        {
+            var queryBuildContext = new JsonObject();
+
+            var credentialId = routingContext.request().getParam(Constants.ID);
+
+            queryBuildContext.put(Constants.DB_OPERATION_TYPE,Constants.DELETE_OPERATION);
+
+            queryBuildContext.put(Constants.DB_TABLE_NAME,Constants.CREDENTIAL_PROFILE_TABLE);
+
+            queryBuildContext.put(Constants.DB_CONDITIONS,CommonUtil.buildString("id = " , credentialId));
+
+            Bootstrap.getVertx().eventBus().<String>request(Constants.QUERY_BUILD_REQUEST,queryBuildContext, queryBuilderReply->
+            {
+                if(queryBuilderReply.succeeded())
+                {
+                    queryBuildContext.put(Constants.QUERY,queryBuilderReply.result().body());
+
+                    Bootstrap.getVertx().eventBus().<JsonArray>request(Constants.DB_REQUESTS,queryBuildContext, dbOperationReply ->
+                    {
+                        if(dbOperationReply.succeeded())
+                        {
+                            var responseMessage = Boolean.TRUE.equals(dbOperationReply.result().body())
+                                    ? "Credential Profile deleted successfully..."
+                                    : "Credential Profile not deleted. Please try again...";
+
+                            routingContext.response()
+                                    .putHeader(Constants.CONTENT_TYPE, Constants.CONTENT_TYPE_TEXT_PLAIN)
+                                    .end(responseMessage);
+                        }
+                    });
+                }
+            });
+        }
+        catch (Exception exception)
+        {
+            LOGGER.error(exception.getMessage(),exception.getStackTrace());
+        }
 
     }
 

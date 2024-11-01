@@ -87,4 +87,6 @@ public class Constants
 
     public static final String ENCRYPTION_KEY = "AIOPSTrainingProject@123";
 
+    public static final String ID = "id";
+
 }
