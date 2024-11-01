@@ -44,7 +44,7 @@ public class CredentialProfileEngine implements InitializeRouter, CrudOperations
 
                 queryBuildContext.put(Constants.DB_VALUES,credentialContext);
 
-                executeDbRequest(queryBuildContext,routingContext,
+                CommonUtil.handleModificationRequest(queryBuildContext,routingContext,
                         "Credential Profile added successfully...",
                         "Credential Profile not created. Please try again...");
             }
@@ -78,25 +78,7 @@ public class CredentialProfileEngine implements InitializeRouter, CrudOperations
 
             queryBuildContext.put(Constants.DB_TABLE_NAME,Constants.CREDENTIAL_PROFILE_TABLE);
 
-            Bootstrap.getVertx().eventBus().<String>request(Constants.QUERY_BUILD_REQUEST,queryBuildContext,
-                    queryBuilderReply->
-            {
-                if(queryBuilderReply.succeeded())
-                {
-                    queryBuildContext.put(Constants.QUERY,queryBuilderReply.result().body());
-
-                    Bootstrap.getVertx().eventBus().<JsonArray>request(Constants.DB_REQUESTS,queryBuildContext,
-                            dbOperationReply ->
-                    {
-                        if(dbOperationReply.succeeded())
-                        {
-                            routingContext.response()
-                                    .putHeader(Constants.CONTENT_TYPE, Constants.CONTENT_TYPE_APPLICATION_JSON)
-                                    .end(dbOperationReply.result().body().encodePrettily());
-                        }
-                    });
-                }
-            });
+            CommonUtil.handleSelectRequest(queryBuildContext,routingContext);
         }
         catch (Exception exception)
         {
@@ -133,7 +115,7 @@ public class CredentialProfileEngine implements InitializeRouter, CrudOperations
 
                 queryBuildContext.put(Constants.DB_VALUES,credentialContext);
 
-                executeDbRequest(queryBuildContext,routingContext,
+                CommonUtil.handleModificationRequest(queryBuildContext,routingContext,
                         "Credential Profile updated successfully...",
                         "Credential Profile not updated. Please try again...");
             }
@@ -172,7 +154,7 @@ public class CredentialProfileEngine implements InitializeRouter, CrudOperations
             queryBuildContext.put(Constants.DB_CONDITIONS,CommonUtil
                     .buildString(Constants.ID," = " , credentialId));
 
-            executeDbRequest(queryBuildContext,routingContext,
+            CommonUtil.handleModificationRequest(queryBuildContext,routingContext,
                     "Credential Profile deleted successfully...",
                     "Credential Profile not deleted. Please try again...");
         }
@@ -181,28 +163,6 @@ public class CredentialProfileEngine implements InitializeRouter, CrudOperations
             LOGGER.error(exception.getMessage(),exception.getStackTrace());
         }
 
-    }
-
-    private void executeDbRequest(JsonObject queryBuildContext, RoutingContext routingContext,
-                                  String successMessage, String failureMessage)
-    {
-        Bootstrap.getVertx().eventBus().<String>request(Constants.QUERY_BUILD_REQUEST, queryBuildContext, queryBuilderReply ->
-        {
-            if (queryBuilderReply.succeeded())
-            {
-                queryBuildContext.put(Constants.QUERY, queryBuilderReply.result().body());
-
-                Bootstrap.getVertx().eventBus().<Boolean>request(Constants.DB_REQUESTS, queryBuildContext, dbOperationReply ->
-                {
-                    var responseMessage = Boolean.TRUE.equals(dbOperationReply.result().body())
-                            ? successMessage : failureMessage;
-
-                    routingContext.response()
-                            .putHeader(Constants.CONTENT_TYPE, Constants.CONTENT_TYPE_TEXT_PLAIN)
-                            .end(responseMessage);
-                });
-            }
-        });
     }
 
     @Override
