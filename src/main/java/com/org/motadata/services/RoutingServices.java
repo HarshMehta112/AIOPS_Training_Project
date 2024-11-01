@@ -1,16 +1,15 @@
 package com.org.motadata.services;
 
 import com.org.motadata.Bootstrap;
-import com.org.motadata.utils.Constants;
+import com.org.motadata.engines.CredentialProfileEngine;
+import com.org.motadata.engines.DiscoveryEngine;
 import com.org.motadata.utils.LoggerUtil;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.http.HttpServerOptions;
 import io.vertx.core.net.JksOptions;
-import io.vertx.ext.auth.authentication.TokenCredentials;
 import io.vertx.ext.web.Router;
-import io.vertx.ext.web.RoutingContext;
-import java.time.Duration;
-import java.time.LocalDateTime;
+import io.vertx.ext.web.handler.BodyHandler;
+
 
 /**
  * Description:
@@ -26,17 +25,23 @@ public class RoutingServices extends AbstractVerticle
     {
         var apiRouter = Router.router(Bootstrap.getVertx());
 
+        var discoveryRouter = Router.router(Bootstrap.getVertx());
+
+        var credentialProfileRouter = Router.router(Bootstrap.getVertx());
+
         // Public login route
         apiRouter.post("/login").handler(AuthenticationServices::loginHandler);
 
         // Protected route with JWT authentication
         apiRouter.route("/*").handler(AuthenticationServices::authHandler);
 
-        // Actual protected endpoint
-        apiRouter.post("/test").handler(ctx ->
-        {
-            ctx.response().end("This is a protected resource!");
-        });
+        apiRouter.route("/discovery/*").subRouter(discoveryRouter);
+
+        apiRouter.route("/credentialProfile/*").handler(BodyHandler.create()).subRouter(credentialProfileRouter);
+
+        new DiscoveryEngine().initRouter(discoveryRouter);
+
+        new CredentialProfileEngine().initRouter(credentialProfileRouter);
 
         // Start HTTP server
         Bootstrap.getVertx().createHttpServer(new HttpServerOptions()

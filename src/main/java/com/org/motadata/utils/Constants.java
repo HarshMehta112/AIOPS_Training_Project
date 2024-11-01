@@ -31,6 +31,18 @@ public class Constants
 
     public static final String CONTENT_TYPE_APPLICATION_JSON = "application/json";
 
+    public static final String CONTENT_TYPE_TEXT_PLAIN = "text/plain";
+
+    public static final String DISCOVERY_NAME = "Discovery Name";
+
+    public static final String CREDENTIAL_PROFILE_NAME = "credential_profile_name";
+
+    public static final String PORT = "Port";
+
+    public static final String CREDENTIAL_PROFILE_ID = "Credential Profile Id";
+
+    public static final String IP_ADDRESS = "IP Address";
+
     public static final String ACCESS_TOKEN = "accessToken";
 
     public static final String REFRESH_TOKEN = "refreshToken";
@@ -43,6 +55,33 @@ public class Constants
 
     public static final String SSL_KEYSTORE_PASSWORD = "sslKeyStorePassword";
 
+    public static final String SSH_USERNAME = "ssh_username";
+
+    public static final String SSH_PASSWORD = "ssh_password";
+
+    public static final String QUERY_BUILD_REQUEST = "db.query.build.request";
+
+    public static final String INSERT_OPERATION = "INSERT";
+
+    public static final String DELETE_OPERATION = "DELETE";
+
+    public static final String UPDATE_OPERATION = "UPDATE";
+
+    public static final String SELECT_OPERATION = "SELECT";
+
+    public static final String DB_TABLE_NAME = "tableName";
+
+    public static final String DB_OPERATION_TYPE = "operationType";
+
+    public static final String DB_VALUES = "values";
+
+    public static final String DB_CONDITIONS = "conditions";
+
+    public static final String DB_REQUESTS = "database.operations";
+
+    public static final String QUERY = "query";
+
+    public static final String CREDENTIAL_PROFILE_TABLE = "tbl_credentials";
 
 
 }

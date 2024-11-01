@@ -46,7 +46,7 @@ public class AuthenticationServices
             var accessToken = ConfigurationService.getJwtAuth().generateToken(
                     new JsonObject().put(Constants.USER_NAME,username),
                     new JWTOptions().setAlgorithm(Constants.JWT_TOKEN_ALGORITHM)
-                            .setExpiresInSeconds(30));
+                            .setExpiresInSeconds(30000));
 
             var refreshToken = UUID.randomUUID().toString();
 
@@ -156,6 +156,6 @@ public class AuthenticationServices
 
         LOGGER.info("Duration of access token : " + seconds + " seconds.");
 
-        return seconds >= 30;
+        return seconds >= 3000;
     }
 }

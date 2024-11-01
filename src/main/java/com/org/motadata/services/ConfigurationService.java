@@ -1,6 +1,7 @@
 package com.org.motadata.services;
 
 import com.org.motadata.Bootstrap;
+import com.org.motadata.database.DatabaseService;
 import com.org.motadata.utils.CommonUtil;
 import com.org.motadata.utils.Constants;
 import com.org.motadata.utils.LoggerUtil;
@@ -25,6 +26,16 @@ public class ConfigurationService
     private static String loginUsername;
 
     private static String loginPassword;
+
+    private static DatabaseService databaseServiceProxy;
+
+    public static DatabaseService getDatabaseServiceProxy() {
+        return databaseServiceProxy;
+    }
+
+    public static void setDatabaseServiceProxy(DatabaseService databaseServiceProxy) {
+        ConfigurationService.databaseServiceProxy = databaseServiceProxy;
+    }
 
     public static String getSslKeystorePath() {
         return sslKeystorePath;
@@ -128,6 +139,10 @@ public class ConfigurationService
             );
 
             setJwtAuth(jwtAuth);
+
+            DatabaseService databaseServiceProxy = DatabaseService.createProxy(Bootstrap.getVertx(), "database.service.address");
+
+            setDatabaseServiceProxy(databaseServiceProxy);
 
             LOGGER.info("configurations loaded and setting up of configurations completed..");
 
