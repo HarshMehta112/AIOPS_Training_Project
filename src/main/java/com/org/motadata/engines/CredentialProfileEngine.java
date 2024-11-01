@@ -3,6 +3,7 @@ package com.org.motadata.engines;
 import com.org.motadata.Bootstrap;
 import com.org.motadata.impl.CrudOperations;
 import com.org.motadata.impl.InitializeRouter;
+import com.org.motadata.utils.CommonUtil;
 import com.org.motadata.utils.Constants;
 import com.org.motadata.utils.LoggerUtil;
 import io.vertx.core.json.JsonArray;
@@ -37,6 +38,8 @@ public class CredentialProfileEngine implements InitializeRouter, CrudOperations
                 queryBuildContext.put(Constants.DB_OPERATION_TYPE,Constants.INSERT_OPERATION);
 
                 queryBuildContext.put(Constants.DB_TABLE_NAME,Constants.CREDENTIAL_PROFILE_TABLE);
+
+                credentialContext.put(Constants.SSH_PASSWORD,CommonUtil.encrypt(credentialContext.getString(Constants.SSH_PASSWORD)));
 
                 queryBuildContext.put(Constants.DB_VALUES,credentialContext);
 
@@ -84,27 +87,36 @@ public class CredentialProfileEngine implements InitializeRouter, CrudOperations
     @Override
     public void getAll(RoutingContext routingContext)
     {
-        var queryBuildContext = new JsonObject();
-
-        queryBuildContext.put(Constants.DB_OPERATION_TYPE,Constants.SELECT_OPERATION);
-
-        queryBuildContext.put(Constants.DB_TABLE_NAME,Constants.CREDENTIAL_PROFILE_TABLE);
-
-        Bootstrap.getVertx().eventBus().<String>request(Constants.QUERY_BUILD_REQUEST,queryBuildContext, queryBuilderReply->
+        try
         {
-            if(queryBuilderReply.succeeded())
+            var queryBuildContext = new JsonObject();
+
+            queryBuildContext.put(Constants.DB_OPERATION_TYPE,Constants.SELECT_OPERATION);
+
+            queryBuildContext.put(Constants.DB_TABLE_NAME,Constants.CREDENTIAL_PROFILE_TABLE);
+
+            Bootstrap.getVertx().eventBus().<String>request(Constants.QUERY_BUILD_REQUEST,queryBuildContext, queryBuilderReply->
             {
-                queryBuildContext.put(Constants.QUERY,queryBuilderReply.result().body());
-
-                Bootstrap.getVertx().eventBus().<JsonArray>request(Constants.DB_REQUESTS,queryBuildContext, dbOperationReply ->
+                if(queryBuilderReply.succeeded())
                 {
-                    routingContext.response()
-                            .putHeader(Constants.CONTENT_TYPE, Constants.CONTENT_TYPE_TEXT_PLAIN)
-                            .end(dbOperationReply.result().body().encodePrettily());
-                });
-            }
-        });
+                    queryBuildContext.put(Constants.QUERY,queryBuilderReply.result().body());
 
+                    Bootstrap.getVertx().eventBus().<JsonArray>request(Constants.DB_REQUESTS,queryBuildContext, dbOperationReply ->
+                    {
+                        if(dbOperationReply.succeeded())
+                        {
+                            routingContext.response()
+                                    .putHeader(Constants.CONTENT_TYPE, Constants.CONTENT_TYPE_APPLICATION_JSON)
+                                    .end(dbOperationReply.result().body().encodePrettily());
+                        }
+                    });
+                }
+            });
+        }
+        catch (Exception exception)
+        {
+            LOGGER.error(exception.getMessage(),exception.getStackTrace());
+        }
     }
 
     @Override

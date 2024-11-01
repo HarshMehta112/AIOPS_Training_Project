@@ -83,5 +83,8 @@ public class Constants
 
     public static final String CREDENTIAL_PROFILE_TABLE = "tbl_credentials";
 
+    public static final String ENCRYPTION_ALGORITHM = "AES";
+
+    public static final String ENCRYPTION_KEY = "AIOPSTrainingProject@123";
 
 }

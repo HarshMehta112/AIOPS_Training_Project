@@ -55,6 +55,8 @@ public class DatabaseEngine extends AbstractVerticle
                                             }
                                             else
                                             {
+                                                Bootstrap.getVertx().eventBus().send(handler.replyAddress(),false);
+
                                                 LOGGER.error("Some issue in building query .." + asyncResult.cause().getMessage()
                                                         , asyncResult.cause().getStackTrace());
                                             }
