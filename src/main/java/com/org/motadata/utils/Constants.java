@@ -33,15 +33,15 @@ public class Constants
 
     public static final String CONTENT_TYPE_TEXT_PLAIN = "text/plain";
 
-    public static final String DISCOVERY_NAME = "Discovery Name";
+    public static final String DISCOVERY_NAME = "discovery_name";
 
     public static final String CREDENTIAL_PROFILE_NAME = "credential_profile_name";
 
-    public static final String PORT = "Port";
+    public static final String PORT = "port";
 
-    public static final String CREDENTIAL_PROFILE_ID = "Credential Profile Id";
+    public static final String CREDENTIAL_PROFILE_ID = "credential_profile_id";
 
-    public static final String IP_ADDRESS = "IP Address";
+    public static final String IP_ADDRESS = "ip_address";
 
     public static final String ACCESS_TOKEN = "accessToken";
 
@@ -83,10 +83,13 @@ public class Constants
 
     public static final String CREDENTIAL_PROFILE_TABLE = "tbl_credentials";
 
+    public static final String DISCOVERY_PROFILE_TABLE = "tbl_discoveries";
+
     public static final String ENCRYPTION_ALGORITHM = "AES";
 
     public static final String ENCRYPTION_KEY = "AIOPSTrainingProject@123";
 
     public static final String ID = "id";
 
+    public static final short ZERO = 0;
 }

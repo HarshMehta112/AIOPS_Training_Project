@@ -29,15 +29,17 @@ public class RoutingServices extends AbstractVerticle
 
         var credentialProfileRouter = Router.router(Bootstrap.getVertx());
 
+        var bodyHandler = BodyHandler.create().setBodyLimit(100000000000000L);
+
         // Public login route
         apiRouter.post("/login").handler(AuthenticationServices::loginHandler);
 
         // Protected route with JWT authentication
         apiRouter.route("/*").handler(AuthenticationServices::authHandler);
 
-        apiRouter.route("/discovery/*").subRouter(discoveryRouter);
+        apiRouter.route("/discovery/*").handler(bodyHandler).subRouter(discoveryRouter);
 
-        apiRouter.route("/credentialProfile/*").handler(BodyHandler.create()).subRouter(credentialProfileRouter);
+        apiRouter.route("/credentialProfile/*").handler(bodyHandler).subRouter(credentialProfileRouter);
 
         new DiscoveryEngine().initRouter(discoveryRouter);
 
