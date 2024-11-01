@@ -39,32 +39,14 @@ public class CredentialProfileEngine implements InitializeRouter, CrudOperations
 
                 queryBuildContext.put(Constants.DB_TABLE_NAME,Constants.CREDENTIAL_PROFILE_TABLE);
 
-                credentialContext.put(Constants.SSH_PASSWORD,CommonUtil.encrypt(credentialContext.getString(Constants.SSH_PASSWORD)));
+                credentialContext.put(Constants.SSH_PASSWORD,CommonUtil.
+                        encrypt(credentialContext.getString(Constants.SSH_PASSWORD)));
 
                 queryBuildContext.put(Constants.DB_VALUES,credentialContext);
 
-                Bootstrap.getVertx().eventBus().<String>request(Constants.QUERY_BUILD_REQUEST,queryBuildContext, queryBuilderReply->
-                {
-                    if(queryBuilderReply.succeeded())
-                    {
-                        LOGGER.info("Harsh queryBuilderReply " + queryBuilderReply.result().body());
-
-                        queryBuildContext.put(Constants.QUERY,queryBuilderReply.result().body());
-
-                        LOGGER.info("Harsh queryBuilderReply " + queryBuildContext.encodePrettily());
-
-                        Bootstrap.getVertx().eventBus().<Boolean>request(Constants.DB_REQUESTS,queryBuildContext, dbOperationReply ->
-                        {
-                            var responseMessage = Boolean.TRUE.equals(dbOperationReply.result().body())
-                                    ? "Credential Profile added successfully..."
-                                    : "Credential Profile not created. Please try again...";
-
-                            routingContext.response()
-                                    .putHeader(Constants.CONTENT_TYPE, Constants.CONTENT_TYPE_TEXT_PLAIN)
-                                    .end(responseMessage);
-                        });
-                    }
-                });
+                executeDbRequest(queryBuildContext,routingContext,
+                        "Credential Profile added successfully...",
+                        "Credential Profile not created. Please try again...");
             }
             else
             {
@@ -75,7 +57,8 @@ public class CredentialProfileEngine implements InitializeRouter, CrudOperations
 
                 routingContext.response()
                         .putHeader(Constants.CONTENT_TYPE, Constants.CONTENT_TYPE_TEXT_PLAIN)
-                        .end("You must enter the following details to create new credential profile.\n" + credentialContext.encodePrettily());
+                        .end("You must enter the following details to create new credential profile.\n"
+                                + credentialContext.encodePrettily());
             }
         }
         catch (Exception exception)
@@ -95,13 +78,15 @@ public class CredentialProfileEngine implements InitializeRouter, CrudOperations
 
             queryBuildContext.put(Constants.DB_TABLE_NAME,Constants.CREDENTIAL_PROFILE_TABLE);
 
-            Bootstrap.getVertx().eventBus().<String>request(Constants.QUERY_BUILD_REQUEST,queryBuildContext, queryBuilderReply->
+            Bootstrap.getVertx().eventBus().<String>request(Constants.QUERY_BUILD_REQUEST,queryBuildContext,
+                    queryBuilderReply->
             {
                 if(queryBuilderReply.succeeded())
                 {
                     queryBuildContext.put(Constants.QUERY,queryBuilderReply.result().body());
 
-                    Bootstrap.getVertx().eventBus().<JsonArray>request(Constants.DB_REQUESTS,queryBuildContext, dbOperationReply ->
+                    Bootstrap.getVertx().eventBus().<JsonArray>request(Constants.DB_REQUESTS,queryBuildContext,
+                            dbOperationReply ->
                     {
                         if(dbOperationReply.succeeded())
                         {
@@ -137,33 +122,20 @@ public class CredentialProfileEngine implements InitializeRouter, CrudOperations
 
                 queryBuildContext.put(Constants.DB_TABLE_NAME,Constants.CREDENTIAL_PROFILE_TABLE);
 
-                queryBuildContext.put(Constants.DB_CONDITIONS,CommonUtil.buildString("id = ", credentialId));
+                queryBuildContext.put(Constants.DB_CONDITIONS,CommonUtil
+                        .buildString(Constants.ID," = ", credentialId));
 
                 if (credentialContext.containsKey(Constants.SSH_PASSWORD))
                 {
-                    credentialContext.put(Constants.SSH_PASSWORD,CommonUtil.encrypt(credentialContext.getString(Constants.SSH_PASSWORD)));
+                    credentialContext.put(Constants.SSH_PASSWORD,CommonUtil.
+                            encrypt(credentialContext.getString(Constants.SSH_PASSWORD)));
                 }
 
                 queryBuildContext.put(Constants.DB_VALUES,credentialContext);
 
-                Bootstrap.getVertx().eventBus().<String>request(Constants.QUERY_BUILD_REQUEST,queryBuildContext, queryBuilderReply->
-                {
-                    if(queryBuilderReply.succeeded())
-                    {
-                        queryBuildContext.put(Constants.QUERY,queryBuilderReply.result().body());
-
-                        Bootstrap.getVertx().eventBus().<Boolean>request(Constants.DB_REQUESTS,queryBuildContext, dbOperationReply ->
-                        {
-                            var responseMessage = Boolean.TRUE.equals(dbOperationReply.result().body())
-                                    ? "Credential Profile updated successfully..."
-                                    : "Credential Profile not updated. Please try again...";
-
-                            routingContext.response()
-                                    .putHeader(Constants.CONTENT_TYPE, Constants.CONTENT_TYPE_TEXT_PLAIN)
-                                    .end(responseMessage);
-                        });
-                    }
-                });
+                executeDbRequest(queryBuildContext,routingContext,
+                        "Credential Profile updated successfully...",
+                        "Credential Profile not updated. Please try again...");
             }
             else
             {
@@ -174,7 +146,8 @@ public class CredentialProfileEngine implements InitializeRouter, CrudOperations
 
                 routingContext.response()
                         .putHeader(Constants.CONTENT_TYPE, Constants.CONTENT_TYPE_TEXT_PLAIN)
-                        .end("You must enter one of the following details to update credential profile.\n" + credentialContext.encodePrettily());
+                        .end("You must enter one of the following details to update credential profile.\n"
+                                + credentialContext.encodePrettily());
             }
         }
         catch (Exception exception)
@@ -196,35 +169,40 @@ public class CredentialProfileEngine implements InitializeRouter, CrudOperations
 
             queryBuildContext.put(Constants.DB_TABLE_NAME,Constants.CREDENTIAL_PROFILE_TABLE);
 
-            queryBuildContext.put(Constants.DB_CONDITIONS,CommonUtil.buildString("id = " , credentialId));
+            queryBuildContext.put(Constants.DB_CONDITIONS,CommonUtil
+                    .buildString(Constants.ID," = " , credentialId));
 
-            Bootstrap.getVertx().eventBus().<String>request(Constants.QUERY_BUILD_REQUEST,queryBuildContext, queryBuilderReply->
-            {
-                if(queryBuilderReply.succeeded())
-                {
-                    queryBuildContext.put(Constants.QUERY,queryBuilderReply.result().body());
-
-                    Bootstrap.getVertx().eventBus().<JsonArray>request(Constants.DB_REQUESTS,queryBuildContext, dbOperationReply ->
-                    {
-                        if(dbOperationReply.succeeded())
-                        {
-                            var responseMessage = Boolean.TRUE.equals(dbOperationReply.result().body())
-                                    ? "Credential Profile deleted successfully..."
-                                    : "Credential Profile not deleted. Please try again...";
-
-                            routingContext.response()
-                                    .putHeader(Constants.CONTENT_TYPE, Constants.CONTENT_TYPE_TEXT_PLAIN)
-                                    .end(responseMessage);
-                        }
-                    });
-                }
-            });
+            executeDbRequest(queryBuildContext,routingContext,
+                    "Credential Profile deleted successfully...",
+                    "Credential Profile not deleted. Please try again...");
         }
         catch (Exception exception)
         {
             LOGGER.error(exception.getMessage(),exception.getStackTrace());
         }
 
+    }
+
+    private void executeDbRequest(JsonObject queryBuildContext, RoutingContext routingContext,
+                                  String successMessage, String failureMessage)
+    {
+        Bootstrap.getVertx().eventBus().<String>request(Constants.QUERY_BUILD_REQUEST, queryBuildContext, queryBuilderReply ->
+        {
+            if (queryBuilderReply.succeeded())
+            {
+                queryBuildContext.put(Constants.QUERY, queryBuilderReply.result().body());
+
+                Bootstrap.getVertx().eventBus().<Boolean>request(Constants.DB_REQUESTS, queryBuildContext, dbOperationReply ->
+                {
+                    var responseMessage = Boolean.TRUE.equals(dbOperationReply.result().body())
+                            ? successMessage : failureMessage;
+
+                    routingContext.response()
+                            .putHeader(Constants.CONTENT_TYPE, Constants.CONTENT_TYPE_TEXT_PLAIN)
+                            .end(responseMessage);
+                });
+            }
+        });
     }
 
     @Override
