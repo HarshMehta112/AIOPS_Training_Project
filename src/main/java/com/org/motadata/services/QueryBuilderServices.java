@@ -27,16 +27,23 @@ public class QueryBuilderServices extends AbstractVerticle
 
                 Bootstrap.getVertx().executeBlocking(promise ->
                 {
-                    var queryBuildContext = handler.body();
+                    try
+                    {
+                        var queryBuildContext = handler.body();
 
-                    var query = buildQuery(queryBuildContext.getString(Constants.DB_OPERATION_TYPE),
-                            queryBuildContext.getString(Constants.DB_TABLE_NAME),
-                            queryBuildContext.containsKey(Constants.DB_VALUES)?queryBuildContext.getJsonObject(Constants.DB_VALUES):null,
-                            queryBuildContext.containsKey(Constants.DB_CONDITIONS)?queryBuildContext.getString(Constants.DB_CONDITIONS):null);
+                        var query = buildQuery(queryBuildContext.getString(Constants.DB_OPERATION_TYPE),
+                                queryBuildContext.getString(Constants.DB_TABLE_NAME),
+                                queryBuildContext.containsKey(Constants.DB_VALUES)?queryBuildContext.getJsonObject(Constants.DB_VALUES):null,
+                                queryBuildContext.containsKey(Constants.DB_CONDITIONS)?queryBuildContext.getString(Constants.DB_CONDITIONS):null);
 
-                    LOGGER.info("Built Query : " + query);
+                        LOGGER.info("Built Query : " + query);
 
-                    promise.complete(query);
+                        promise.complete(query);
+                    }
+                    catch (Exception exception)
+                    {
+                        promise.fail(exception);
+                    }
 
                 },false, asyncResult ->
                 {

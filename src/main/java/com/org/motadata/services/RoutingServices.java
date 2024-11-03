@@ -1,8 +1,6 @@
 package com.org.motadata.services;
 
 import com.org.motadata.Bootstrap;
-import com.org.motadata.engines.CredentialProfileEngine;
-import com.org.motadata.engines.DiscoveryEngine;
 import com.org.motadata.utils.LoggerUtil;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.http.HttpServerOptions;
@@ -41,9 +39,9 @@ public class RoutingServices extends AbstractVerticle
 
         apiRouter.route("/credentialProfile/*").handler(bodyHandler).subRouter(credentialProfileRouter);
 
-        new DiscoveryEngine().initRouter(discoveryRouter);
+        new DiscoveryServices().initRouter(discoveryRouter);
 
-        new CredentialProfileEngine().initRouter(credentialProfileRouter);
+        new CredentialProfileServices().initRouter(credentialProfileRouter);
 
         // Start HTTP server
         Bootstrap.getVertx().createHttpServer(new HttpServerOptions()

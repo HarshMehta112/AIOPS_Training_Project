@@ -61,6 +61,8 @@ public class Constants
 
     public static final String QUERY_BUILD_REQUEST = "db.query.build.request";
 
+    public static final String DISCOVERY_RUN_REQUEST = "discovery.run.request";
+
     public static final String INSERT_OPERATION = "INSERT";
 
     public static final String DELETE_OPERATION = "DELETE";
@@ -68,6 +70,8 @@ public class Constants
     public static final String UPDATE_OPERATION = "UPDATE";
 
     public static final String SELECT_OPERATION = "SELECT";
+
+    public static final String SP_CALL = "SP_CALL";
 
     public static final String DB_TABLE_NAME = "tableName";
 
@@ -89,7 +93,24 @@ public class Constants
 
     public static final String ENCRYPTION_KEY = "AIOPSTrainingProject@123";
 
+    public static final String PLUGIN_CALL_CATEGORY = "category";
+
+    public static final String DISCOVERY = "discovery";
+
+    public static final String POLLING = "polling";
+
     public static final String ID = "id";
 
     public static final short ZERO = 0;
+
+    public static final String DISCOVERY_ID = "discovery_id";
+
+    public static final String DISCOVERED_FLAG = "discovered";
+
+    public static final String STATUS = "status";
+
+    public static final String DISCOVERY_PROVISION_SP = "CALL insert_into_monitor(###)";
+
+    public static final String RUN_DISCOVERY_DATA_QUERY = "\n" +
+            "SELECT d.id AS discovery_id, d.ip_address, d.port, c.ssh_username, c.ssh_password FROM tbl_discoveries d JOIN tbl_credentials c ON d.credential_profile_id = c.id WHERE d.id = "+ "###" +";";
 }

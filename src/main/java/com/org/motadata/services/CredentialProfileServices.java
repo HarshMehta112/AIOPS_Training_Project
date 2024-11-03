@@ -1,12 +1,10 @@
-package com.org.motadata.engines;
+package com.org.motadata.services;
 
-import com.org.motadata.Bootstrap;
 import com.org.motadata.impl.CrudOperations;
 import com.org.motadata.impl.InitializeRouter;
 import com.org.motadata.utils.CommonUtil;
 import com.org.motadata.utils.Constants;
 import com.org.motadata.utils.LoggerUtil;
-import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.RoutingContext;
@@ -16,10 +14,10 @@ import io.vertx.ext.web.RoutingContext;
  * Author: Harsh Mehta
  * Date: 10/31/24 12:36 PM
  */
-public class CredentialProfileEngine implements InitializeRouter, CrudOperations
+public class CredentialProfileServices implements InitializeRouter, CrudOperations
 {
 
-    private static final LoggerUtil LOGGER = new LoggerUtil(CredentialProfileEngine.class);
+    private static final LoggerUtil LOGGER = new LoggerUtil(CredentialProfileServices.class);
 
     @Override
     public void create(RoutingContext routingContext)

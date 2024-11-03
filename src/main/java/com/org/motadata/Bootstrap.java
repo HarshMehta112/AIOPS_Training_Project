@@ -2,6 +2,7 @@ package com.org.motadata;
 
 import com.org.motadata.database.DatabaseServiceProvider;
 import com.org.motadata.engines.DatabaseEngine;
+import com.org.motadata.engines.DiscoveryEngine;
 import com.org.motadata.services.QueryBuilderServices;
 import com.org.motadata.services.RoutingServices;
 import io.vertx.core.DeploymentOptions;
@@ -32,6 +33,9 @@ public class Bootstrap
         VERTX.deployVerticle(RoutingServices.class.getName());
 
         VERTX.deployVerticle(QueryBuilderServices.class.getName(),
+                new DeploymentOptions().setThreadingModel(ThreadingModel.WORKER).setWorkerPoolSize(2));
+
+        VERTX.deployVerticle(DiscoveryEngine.class.getName(),
                 new DeploymentOptions().setThreadingModel(ThreadingModel.WORKER).setWorkerPoolSize(2));
 
     }

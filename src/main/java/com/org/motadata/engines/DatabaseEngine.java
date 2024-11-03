@@ -23,45 +23,63 @@ public class DatabaseEngine extends AbstractVerticle
 
                 Bootstrap.getVertx().executeBlocking(promise ->
                 {
-                    var queryBuildContext = handler.body();
-
-                    LOGGER.info(queryBuildContext.encodePrettily());
-
-                    if(queryBuildContext.getString(Constants.DB_OPERATION_TYPE).equals(Constants.SELECT_OPERATION))
+                    try
                     {
-                        ConfigurationService.getDatabaseServiceProxy()
-                                .executeSelect(queryBuildContext.getString(Constants.QUERY),asyncResult ->
+                        var queryBuildContext = handler.body();
+
+                        LOGGER.info(queryBuildContext.encodePrettily());
+
+                        if(queryBuildContext.getString(Constants.DB_OPERATION_TYPE).equals(Constants.SELECT_OPERATION))
                         {
-                            if(asyncResult.succeeded())
-                            {
-                                Bootstrap.getVertx().eventBus().send(handler.replyAddress(),asyncResult.result());
-                            }
-                            else
-                            {
-                                LOGGER.error("Some issue in building query .." + asyncResult.cause().getMessage()
-                                        , asyncResult.cause().getStackTrace());
-                            }
-                        });
-                    }
-                    else
-                    {
-                        ConfigurationService.getDatabaseServiceProxy()
-                                .executeQuery(queryBuildContext.getString(Constants.QUERY)
-                                        ,queryBuildContext.getJsonObject(Constants.DB_VALUES),asyncResult ->
+                            ConfigurationService.getDatabaseServiceProxy()
+                                    .executeSelect(queryBuildContext.getString(Constants.QUERY),asyncResult ->
+                                    {
+                                        if(asyncResult.succeeded())
                                         {
-                                            if(asyncResult.succeeded())
-                                            {
-                                                Bootstrap.getVertx().eventBus().send(handler.replyAddress(),true);
-                                            }
-                                            else
-                                            {
-                                                Bootstrap.getVertx().eventBus().send(handler.replyAddress(),false);
+                                            promise.complete(asyncResult.result());
 
-                                                LOGGER.error("Some issue in building query .." + asyncResult.cause().getMessage()
-                                                        , asyncResult.cause().getStackTrace());
-                                            }
-                                        });
+                                            Bootstrap.getVertx().eventBus().send(handler.replyAddress(),asyncResult.result());
+                                        }
+                                        else
+                                        {
+                                            LOGGER.error("Some issue in building query .." + asyncResult.cause().getMessage()
+                                                    , asyncResult.cause().getStackTrace());
+
+                                            promise.fail(asyncResult.cause());
+                                        }
+                                    });
+                        }
+                        else
+                        {
+                            ConfigurationService.getDatabaseServiceProxy()
+                                    .executeQuery(queryBuildContext.getString(Constants.QUERY)
+                                            ,queryBuildContext.getJsonObject(Constants.DB_VALUES),asyncResult ->
+                                            {
+                                                if(asyncResult.succeeded())
+                                                {
+                                                    promise.complete(true);
+
+                                                    Bootstrap.getVertx().eventBus().send(handler.replyAddress(),true);
+                                                }
+                                                else
+                                                {
+                                                    Bootstrap.getVertx().eventBus().send(handler.replyAddress(),false);
+
+                                                    LOGGER.error("Some issue in building query .." + asyncResult.cause().getMessage()
+                                                            , asyncResult.cause().getStackTrace());
+
+                                                    promise.fail(asyncResult.cause());
+
+                                                }
+                                            });
+                        }
                     }
-                },false)).exceptionHandler(exceptionHandler->LOGGER.error(exceptionHandler.getMessage(),exceptionHandler.getStackTrace()));
+                    catch (Exception exception)
+                    {
+                        LOGGER.error(exception.getMessage(),exception.getStackTrace());
+
+                        promise.fail(exception.getMessage());
+                    }
+                },false));
     }
 }

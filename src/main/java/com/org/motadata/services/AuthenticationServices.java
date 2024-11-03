@@ -122,7 +122,7 @@ public class AuthenticationServices
                 {
                     String refreshToken = AuthenticationServices.getRefreshTokenStore().get("admin");
 
-                    if(isTokenExpired(refreshToken.split(Constants.VALUE_SEPARATOR_WITH_ESCAPE)[1]))
+                    if(refreshToken != null && isTokenExpired(refreshToken.split(Constants.VALUE_SEPARATOR_WITH_ESCAPE)[1]))
                     {
                         AuthenticationServices.refreshTokenHandler(routingContext,refreshToken);
                     }

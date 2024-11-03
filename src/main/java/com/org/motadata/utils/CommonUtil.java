@@ -4,9 +4,12 @@ import com.org.motadata.Bootstrap;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.web.RoutingContext;
-
+import java.util.concurrent.TimeUnit;
 import javax.crypto.Cipher;
 import javax.crypto.spec.SecretKeySpec;
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import java.util.stream.Stream;
 
@@ -118,4 +121,89 @@ public class CommonUtil
                     }
                 });
     }
+
+
+    public static JsonArray executePlugin(JsonArray deviceContext)
+    {
+        boolean categoryTypeCheck = deviceContext.getJsonObject(0)
+                .getString(Constants.PLUGIN_CALL_CATEGORY)
+                .equals(Constants.POLLING);
+
+        String dataEncoder = Base64.getEncoder().encodeToString(deviceContext.toString()
+                .getBytes(StandardCharsets.UTF_8));
+
+        JsonArray batchResult = new JsonArray();
+
+        try
+        {
+            Process process = startProcess(dataEncoder);
+
+            if (process == null) return batchResult;
+
+            try (BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream())))
+            {
+                processOutput(reader, batchResult, categoryTypeCheck);
+            }
+        }
+        catch (Exception exception)
+        {
+            LOGGER.error(exception.getMessage(),exception.getStackTrace());
+        }
+
+        return batchResult;
+    }
+
+    private static Process startProcess(String dataEncoder)
+    {
+        Process process = null;
+
+        try
+        {
+            ProcessBuilder processBuilder = new ProcessBuilder("/home/harsh/GolandProjects/AIOPS_Training_Project/AIOPS_Training_Project", dataEncoder);
+
+            process = processBuilder.start();
+
+            if (!process.waitFor(60, TimeUnit.SECONDS))
+            {
+                process.destroy();
+
+                throw new InterruptedException("Process has been interrupted because of timeout (60 seconds).");
+            }
+        }
+        catch (Exception exception)
+        {
+            LOGGER.error(exception.getMessage(),exception.getStackTrace());
+        }
+
+        return process;
+    }
+
+    private static void processOutput(BufferedReader reader, JsonArray batchResult, boolean categoryTypeCheck)
+    {
+        String line;
+
+        try
+        {
+            while ((line = reader.readLine()) != null)
+            {
+                JsonObject singleDeviceData = new JsonObject(line);
+
+                if (categoryTypeCheck)
+                {
+                    batchResult.add(singleDeviceData);
+                }
+                else
+                {
+                    batchResult.add(singleDeviceData);
+
+                    return;
+                }
+            }
+        }
+        catch (Exception exception)
+        {
+            LOGGER.error(exception.getMessage(),exception.getStackTrace());
+        }
+    }
+
 }
