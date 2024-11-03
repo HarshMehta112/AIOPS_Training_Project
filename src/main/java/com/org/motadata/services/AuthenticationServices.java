@@ -85,7 +85,7 @@ public class AuthenticationServices
 
             routingContext.response().putHeader(Constants.CONTENT_TYPE, Constants.CONTENT_TYPE_APPLICATION_JSON)
                     .end(new JsonObject().put("message","Your previous access token expired, So generated new Token... please request again using below mentioned token")
-                            .put("accessToken", newAccessToken).encodePrettily());
+                            .put(Constants.ACCESS_TOKEN, newAccessToken).encodePrettily());
 
             refreshTokenStore.put(username,CommonUtil.buildString(refreshToken,
                     Constants.VALUE_SEPARATOR,LocalDateTime.now().toString()));

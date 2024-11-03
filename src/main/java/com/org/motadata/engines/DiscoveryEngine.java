@@ -37,14 +37,11 @@ public class DiscoveryEngine extends AbstractVerticle
                     {
                         var queryBuildContext = new JsonObject();
 
-                        queryBuildContext.put(Constants.DB_OPERATION_TYPE, Constants.UPDATE_OPERATION);
-
-                        queryBuildContext.put(Constants.DB_TABLE_NAME, Constants.DISCOVERY_PROFILE_TABLE);
-
-                        queryBuildContext.put(Constants.DB_CONDITIONS, CommonUtil
-                                .buildString(Constants.ID, " = ", discoveryId));
-
-                        queryBuildContext.put(Constants.DB_VALUES, new JsonObject()
+                        queryBuildContext.put(Constants.DB_OPERATION_TYPE, Constants.UPDATE_OPERATION)
+                                .put(Constants.DB_TABLE_NAME, Constants.DISCOVERY_PROFILE_TABLE)
+                                .put(Constants.DB_CONDITIONS, CommonUtil
+                                        .buildString(Constants.ID, " = ", discoveryId))
+                                .put(Constants.DB_VALUES, new JsonObject()
                                 .put(Constants.DISCOVERED_FLAG, discoveryResult.equals("success")));
 
                         Bootstrap.getVertx().eventBus().<String>request(Constants.QUERY_BUILD_REQUEST,

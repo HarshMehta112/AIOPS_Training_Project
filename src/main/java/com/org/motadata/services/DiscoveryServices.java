@@ -51,11 +51,9 @@ public class DiscoveryServices implements InitializeRouter, CrudOperations
             {
                 var queryBuildContext = new JsonObject();
 
-                queryBuildContext.put(Constants.DB_OPERATION_TYPE,Constants.INSERT_OPERATION);
-
-                queryBuildContext.put(Constants.DB_TABLE_NAME,Constants.DISCOVERY_PROFILE_TABLE);
-
-                queryBuildContext.put(Constants.DB_VALUES,discoveryContext);
+                queryBuildContext.put(Constants.DB_OPERATION_TYPE,Constants.INSERT_OPERATION)
+                        .put(Constants.DB_TABLE_NAME,Constants.DISCOVERY_PROFILE_TABLE)
+                        .put(Constants.DB_VALUES,discoveryContext);
 
                 CommonUtil.handleModificationRequest(queryBuildContext,routingContext,
                         "Discovery Profile added successfully...",
@@ -113,14 +111,11 @@ public class DiscoveryServices implements InitializeRouter, CrudOperations
             {
                 var queryBuildContext = new JsonObject();
 
-                queryBuildContext.put(Constants.DB_OPERATION_TYPE,Constants.UPDATE_OPERATION);
-
-                queryBuildContext.put(Constants.DB_TABLE_NAME,Constants.DISCOVERY_PROFILE_TABLE);
-
-                queryBuildContext.put(Constants.DB_CONDITIONS,CommonUtil
-                        .buildString(Constants.ID," = ", discoveryId));
-
-                queryBuildContext.put(Constants.DB_VALUES,discoveryContext);
+                queryBuildContext.put(Constants.DB_OPERATION_TYPE,Constants.UPDATE_OPERATION)
+                        .put(Constants.DB_TABLE_NAME,Constants.DISCOVERY_PROFILE_TABLE)
+                        .put(Constants.DB_CONDITIONS,CommonUtil
+                        .buildString(Constants.ID," = ", discoveryId))
+                        .put(Constants.DB_VALUES,discoveryContext);
 
                 CommonUtil.handleModificationRequest(queryBuildContext,routingContext,
                         "Discovery Profile updated successfully...",
@@ -154,11 +149,9 @@ public class DiscoveryServices implements InitializeRouter, CrudOperations
 
             var discoveryId = routingContext.request().getParam(Constants.ID);
 
-            queryBuildContext.put(Constants.DB_OPERATION_TYPE,Constants.DELETE_OPERATION);
-
-            queryBuildContext.put(Constants.DB_TABLE_NAME,Constants.DISCOVERY_PROFILE_TABLE);
-
-            queryBuildContext.put(Constants.DB_CONDITIONS,CommonUtil
+            queryBuildContext.put(Constants.DB_OPERATION_TYPE,Constants.DELETE_OPERATION)
+                    .put(Constants.DB_TABLE_NAME,Constants.DISCOVERY_PROFILE_TABLE)
+                    .put(Constants.DB_CONDITIONS,CommonUtil
                     .buildString(Constants.ID," = " , discoveryId));
 
             CommonUtil.handleModificationRequest(queryBuildContext,routingContext,

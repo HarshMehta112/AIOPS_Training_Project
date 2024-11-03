@@ -42,6 +42,9 @@ public class QueryBuilderServices extends AbstractVerticle
                     }
                     catch (Exception exception)
                     {
+
+                        LOGGER.error(exception.getMessage(),exception.getStackTrace());
+
                         promise.fail(exception);
                     }
 

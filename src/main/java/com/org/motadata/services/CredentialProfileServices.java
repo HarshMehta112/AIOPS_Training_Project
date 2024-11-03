@@ -33,9 +33,8 @@ public class CredentialProfileServices implements InitializeRouter, CrudOperatio
             {
                 var queryBuildContext = new JsonObject();
 
-                queryBuildContext.put(Constants.DB_OPERATION_TYPE,Constants.INSERT_OPERATION);
-
-                queryBuildContext.put(Constants.DB_TABLE_NAME,Constants.CREDENTIAL_PROFILE_TABLE);
+                queryBuildContext.put(Constants.DB_OPERATION_TYPE,Constants.INSERT_OPERATION)
+                        .put(Constants.DB_TABLE_NAME,Constants.CREDENTIAL_PROFILE_TABLE);
 
                 credentialContext.put(Constants.SSH_PASSWORD,CommonUtil.
                         encrypt(credentialContext.getString(Constants.SSH_PASSWORD)));
@@ -72,9 +71,8 @@ public class CredentialProfileServices implements InitializeRouter, CrudOperatio
         {
             var queryBuildContext = new JsonObject();
 
-            queryBuildContext.put(Constants.DB_OPERATION_TYPE,Constants.SELECT_OPERATION);
-
-            queryBuildContext.put(Constants.DB_TABLE_NAME,Constants.CREDENTIAL_PROFILE_TABLE);
+            queryBuildContext.put(Constants.DB_OPERATION_TYPE,Constants.SELECT_OPERATION)
+                    .put(Constants.DB_TABLE_NAME,Constants.CREDENTIAL_PROFILE_TABLE);
 
             CommonUtil.handleSelectRequest(queryBuildContext,routingContext);
         }
@@ -98,11 +96,9 @@ public class CredentialProfileServices implements InitializeRouter, CrudOperatio
             {
                 var queryBuildContext = new JsonObject();
 
-                queryBuildContext.put(Constants.DB_OPERATION_TYPE,Constants.UPDATE_OPERATION);
-
-                queryBuildContext.put(Constants.DB_TABLE_NAME,Constants.CREDENTIAL_PROFILE_TABLE);
-
-                queryBuildContext.put(Constants.DB_CONDITIONS,CommonUtil
+                queryBuildContext.put(Constants.DB_OPERATION_TYPE,Constants.UPDATE_OPERATION)
+                        .put(Constants.DB_TABLE_NAME,Constants.CREDENTIAL_PROFILE_TABLE)
+                        .put(Constants.DB_CONDITIONS,CommonUtil
                         .buildString(Constants.ID," = ", credentialId));
 
                 if (credentialContext.containsKey(Constants.SSH_PASSWORD))
@@ -145,11 +141,9 @@ public class CredentialProfileServices implements InitializeRouter, CrudOperatio
 
             var credentialId = routingContext.request().getParam(Constants.ID);
 
-            queryBuildContext.put(Constants.DB_OPERATION_TYPE,Constants.DELETE_OPERATION);
-
-            queryBuildContext.put(Constants.DB_TABLE_NAME,Constants.CREDENTIAL_PROFILE_TABLE);
-
-            queryBuildContext.put(Constants.DB_CONDITIONS,CommonUtil
+            queryBuildContext.put(Constants.DB_OPERATION_TYPE,Constants.DELETE_OPERATION)
+                    .put(Constants.DB_TABLE_NAME,Constants.CREDENTIAL_PROFILE_TABLE)
+                    .put(Constants.DB_CONDITIONS,CommonUtil
                     .buildString(Constants.ID," = " , credentialId));
 
             CommonUtil.handleModificationRequest(queryBuildContext,routingContext,

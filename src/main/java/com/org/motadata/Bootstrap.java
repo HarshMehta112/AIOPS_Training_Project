@@ -27,6 +27,8 @@ public class Bootstrap
     {
         VERTX.deployVerticle(DatabaseServiceProvider.class.getName());
 
+        //TODO HARSH READ FROM CONFIG WORKER POOL SIZE
+
         VERTX.deployVerticle(DatabaseEngine.class.getName(),
                 new DeploymentOptions().setThreadingModel(ThreadingModel.WORKER).setWorkerPoolSize(5));
 
