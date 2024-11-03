@@ -187,7 +187,7 @@ public class DiscoveryServices implements InitializeRouter, CrudOperations
             {
                 if (dbOperationReply.succeeded())
                 {
-                    var deviceData = dbOperationReply.result().body(); //null check
+                    var deviceData = dbOperationReply.result().body();
 
                     if (deviceData != null)
                     {
@@ -195,11 +195,10 @@ public class DiscoveryServices implements InitializeRouter, CrudOperations
 
                         deviceContext.put(Constants.PLUGIN_CALL_CATEGORY,Constants.DISCOVERY);
 
-                        deviceContext.put(Constants.SSH_PASSWORD,CommonUtil.decrypt(deviceContext.getString(Constants.SSH_PASSWORD)));
+                        deviceContext.put(Constants.SSH_PASSWORD,
+                                CommonUtil.decrypt(deviceContext.getString(Constants.SSH_PASSWORD)));
 
-                        deviceData.remove(0);
-
-                        deviceData.add(0,deviceContext);
+                        deviceData.set(0,deviceContext);
 
                         LOGGER.info(deviceData.encodePrettily());
 
