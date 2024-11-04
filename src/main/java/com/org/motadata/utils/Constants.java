@@ -59,6 +59,14 @@ public class Constants
 
     public static final String SSH_PASSWORD = "ssh_password";
 
+    public static final String DEVICE_TYPE = "device_type";
+
+    public static final String SSH = "ssh";
+
+    public static final String PING = "ping";
+
+    public static final String MONITOR_ID = "monitor_id";
+
     public static final String QUERY_BUILD_REQUEST = "db.query.build.request";
 
     public static final String DISCOVERY_RUN_REQUEST = "discovery.run.request";
@@ -70,6 +78,8 @@ public class Constants
     public static final String UPDATE_OPERATION = "UPDATE";
 
     public static final String SELECT_OPERATION = "SELECT";
+
+    public static final String BATCH_INSERT_OPERATION = "BATCH_INSERT";
 
     public static final String SP_CALL = "SP_CALL";
 
@@ -83,11 +93,19 @@ public class Constants
 
     public static final String DB_REQUESTS = "database.operations";
 
+    public static final String POLLING_REQUESTS = "polling.requests";
+
+    public static final String AVAILIBILITY_POLLING_REQUESTS = "availibility.polling.requests";
+
+    public static final String METRIC_POLLING_REQUESTS = "metric.polling.requests";
+
     public static final String QUERY = "query";
 
     public static final String CREDENTIAL_PROFILE_TABLE = "tbl_credentials";
 
     public static final String DISCOVERY_PROFILE_TABLE = "tbl_discoveries";
+
+    public static final String MONITOR_TABLE = "tbl_monitor";
 
     public static final String ENCRYPTION_ALGORITHM = "AES";
 
@@ -111,6 +129,12 @@ public class Constants
 
     public static final String DISCOVERY_PROVISION_SP = "CALL insert_into_monitor(###)";
 
+    public static final String AVAILIBILITY_POLLING_TIME = "availibility_poll_time";
+
+    public static final String METRIC_POLLING_TIME = "metric_poll_time";
+
     public static final String RUN_DISCOVERY_DATA_QUERY = "\n" +
             "SELECT d.id AS discovery_id, d.ip_address, d.port, c.ssh_username, c.ssh_password FROM tbl_discoveries d JOIN tbl_credentials c ON d.credential_profile_id = c.id WHERE d.id = "+ "###" +";";
+
+    public static final String METRIC_INSERT_QUERY = "INSERT INTO tbl_metric (id, metric_name, metric_value) VALUES ($1, $2, $3)";
 }

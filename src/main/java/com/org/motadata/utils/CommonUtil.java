@@ -1,6 +1,8 @@
 package com.org.motadata.utils;
 
 import com.org.motadata.Bootstrap;
+import io.vertx.core.Future;
+import io.vertx.core.Promise;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.web.RoutingContext;
@@ -122,20 +124,45 @@ public class CommonUtil
                 });
     }
 
+    public static Future<JsonArray> handleSelectRequest(JsonObject queryBuildContext) {
+        Promise<JsonArray> promise = Promise.promise();
+
+        Bootstrap.getVertx().eventBus().<String>request(Constants.QUERY_BUILD_REQUEST, queryBuildContext, queryBuilderReply -> {
+            if (queryBuilderReply.succeeded()) {
+                queryBuildContext.put(Constants.QUERY, queryBuilderReply.result().body());
+
+                Bootstrap.getVertx().eventBus().<JsonArray>request(Constants.DB_REQUESTS, queryBuildContext, dbOperationReply -> {
+                    if (dbOperationReply.succeeded()) {
+                        promise.complete(dbOperationReply.result().body());
+                    } else {
+                        promise.fail(dbOperationReply.cause());
+                    }
+                });
+            } else {
+                promise.fail(queryBuilderReply.cause());
+            }
+        });
+
+        return promise.future();
+    }
+
+
 
     public static JsonArray executePlugin(JsonArray deviceContext)
     {
-        boolean categoryTypeCheck = deviceContext.getJsonObject(0)
-                .getString(Constants.PLUGIN_CALL_CATEGORY)
-                .equals(Constants.POLLING);
-
-        String dataEncoder = Base64.getEncoder().encodeToString(deviceContext.toString()
-                .getBytes(StandardCharsets.UTF_8));
-
         JsonArray batchResult = new JsonArray();
 
         try
         {
+            String dataEncoder = Base64.getEncoder().encodeToString(deviceContext.toString()
+                    .getBytes(StandardCharsets.UTF_8));
+
+            LOGGER.info(dataEncoder);
+
+            boolean categoryTypeCheck = deviceContext.getJsonObject(0)
+                    .getString(Constants.PLUGIN_CALL_CATEGORY)
+                    .equals(Constants.POLLING);
+
             Process process = startProcess(dataEncoder);
 
             if (process == null) return batchResult;

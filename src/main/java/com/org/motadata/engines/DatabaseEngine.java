@@ -42,12 +42,32 @@ public class DatabaseEngine extends AbstractVerticle
                                         }
                                         else
                                         {
-                                            LOGGER.error("Some issue in building query .." + asyncResult.cause().getMessage()
+                                            LOGGER.error("Some issue in executing query .." + asyncResult.cause().getMessage()
                                                     , asyncResult.cause().getStackTrace());
 
                                             promise.fail(asyncResult.cause());
                                         }
                                     });
+                        }
+                        else if(queryBuildContext.getString(Constants.DB_OPERATION_TYPE).equals(Constants.BATCH_INSERT_OPERATION))
+                        {
+                            ConfigurationService.getDatabaseServiceProxy()
+                                    .batchInsertMetrics(queryBuildContext.getJsonArray(Constants.DB_VALUES)
+                                            ,asyncResult ->
+                                            {
+                                                if(asyncResult.succeeded())
+                                                {
+                                                    promise.complete();
+                                                }
+                                                else
+                                                {
+                                                    LOGGER.error("Some issue in executing batch insertion query .." + asyncResult.cause().getMessage()
+                                                            , asyncResult.cause().getStackTrace());
+
+                                                    promise.fail(asyncResult.cause());
+
+                                                }
+                                            });
                         }
                         else
                         {
@@ -65,7 +85,7 @@ public class DatabaseEngine extends AbstractVerticle
                                                 {
                                                     Bootstrap.getVertx().eventBus().send(handler.replyAddress(),false);
 
-                                                    LOGGER.error("Some issue in building query .." + asyncResult.cause().getMessage()
+                                                    LOGGER.error("Some issue in executing query .." + asyncResult.cause().getMessage()
                                                             , asyncResult.cause().getStackTrace());
 
                                                     promise.fail(asyncResult.cause());

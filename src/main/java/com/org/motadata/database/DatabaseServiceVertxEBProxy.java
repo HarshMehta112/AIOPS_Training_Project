@@ -16,25 +16,15 @@
 
 package com.org.motadata.database;
 
-import io.vertx.core.eventbus.DeliveryOptions;
-import io.vertx.core.Vertx;
+import io.vertx.core.AsyncResult;
 import io.vertx.core.Future;
-import io.vertx.core.json.JsonObject;
+import io.vertx.core.Handler;
+import io.vertx.core.Vertx;
+import io.vertx.core.eventbus.DeliveryOptions;
 import io.vertx.core.json.JsonArray;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.stream.Collectors;
-import java.util.function.Function;
+import io.vertx.core.json.JsonObject;
 import io.vertx.serviceproxy.ServiceException;
 import io.vertx.serviceproxy.ServiceExceptionMessageCodec;
-import io.vertx.serviceproxy.ProxyUtils;
-
-import io.vertx.core.AsyncResult;
-import com.org.motadata.database.DatabaseService;
-import io.vertx.core.Handler;
 /*
   Generated Proxy code - DO NOT EDIT
   @author Roger the Robot
@@ -96,6 +86,27 @@ public class DatabaseServiceVertxEBProxy implements DatabaseService {
     _deliveryOptions.addHeader("action", "executeSelect");
     _deliveryOptions.getHeaders().set("action", "executeSelect");
     _vertx.eventBus().<JsonArray>request(_address, _json, _deliveryOptions, res -> {
+      if (res.failed()) {
+        resultHandler.handle(Future.failedFuture(res.cause()));
+      } else {
+        resultHandler.handle(Future.succeededFuture(res.result().body()));
+      }
+    });
+    return this;
+  }
+  @Override
+  public DatabaseService batchInsertMetrics(JsonArray metricsArray, Handler<AsyncResult<Void>> resultHandler){
+    if (closed) {
+      resultHandler.handle(Future.failedFuture(new IllegalStateException("Proxy is closed")));
+      return this;
+    }
+    JsonObject _json = new JsonObject();
+    _json.put("metricsArray", metricsArray);
+
+    DeliveryOptions _deliveryOptions = (_options != null) ? new DeliveryOptions(_options) : new DeliveryOptions();
+    _deliveryOptions.addHeader("action", "batchInsertMetrics");
+    _deliveryOptions.getHeaders().set("action", "batchInsertMetrics");
+    _vertx.eventBus().<Void>request(_address, _json, _deliveryOptions, res -> {
       if (res.failed()) {
         resultHandler.handle(Future.failedFuture(res.cause()));
       } else {

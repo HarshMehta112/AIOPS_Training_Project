@@ -1,8 +1,11 @@
 package com.org.motadata;
 
 import com.org.motadata.database.DatabaseServiceProvider;
+import com.org.motadata.engines.AvailibilityPollingEngine;
 import com.org.motadata.engines.DatabaseEngine;
 import com.org.motadata.engines.DiscoveryEngine;
+import com.org.motadata.services.PollingEngineManagerServices;
+import com.org.motadata.services.PollingTriggerServices;
 import com.org.motadata.services.QueryBuilderServices;
 import com.org.motadata.services.RoutingServices;
 import io.vertx.core.DeploymentOptions;
@@ -39,6 +42,12 @@ public class Bootstrap
 
         VERTX.deployVerticle(DiscoveryEngine.class.getName(),
                 new DeploymentOptions().setThreadingModel(ThreadingModel.WORKER).setWorkerPoolSize(2));
+
+        VERTX.deployVerticle(PollingTriggerServices.class.getName());
+
+        VERTX.deployVerticle(PollingEngineManagerServices.class.getName(), new DeploymentOptions().setThreadingModel(ThreadingModel.WORKER).setWorkerPoolSize(20));
+        VERTX.deployVerticle(AvailibilityPollingEngine.class.getName(), new DeploymentOptions().setThreadingModel(ThreadingModel.WORKER).setWorkerPoolSize(20));
+
 
     }
 }

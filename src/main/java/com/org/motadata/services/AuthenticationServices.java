@@ -80,7 +80,6 @@ public class AuthenticationServices
         // could be retrieved dynamically if needed
         var username = "admin";
 
-        //TODO HARSH USE OPTIONAL INTERFACE
         if (refreshTokenStore.containsKey(username) && refreshTokenStore.get(username) != null)
         {
             // Generate a new access token

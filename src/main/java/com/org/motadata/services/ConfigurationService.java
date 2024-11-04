@@ -29,6 +29,26 @@ public class ConfigurationService
 
     private static DatabaseService databaseServiceProxy;
 
+    private static long availibilityPollTime;
+
+    private static long metricPollTime;
+
+    public static long getAvailibilityPollTime() {
+        return availibilityPollTime;
+    }
+
+    public static void setAvailibilityPollTime(long availibilityPollTime) {
+        ConfigurationService.availibilityPollTime = availibilityPollTime;
+    }
+
+    public static long getMetricPollTime() {
+        return metricPollTime;
+    }
+
+    public static void setMetricPollTime(long metricPollTime) {
+        ConfigurationService.metricPollTime = metricPollTime;
+    }
+
     public static DatabaseService getDatabaseServiceProxy() {
         return databaseServiceProxy;
     }
@@ -143,6 +163,12 @@ public class ConfigurationService
             DatabaseService databaseServiceProxy = DatabaseService.createProxy(Bootstrap.getVertx(), "database.service.address");
 
             setDatabaseServiceProxy(databaseServiceProxy);
+
+            setAvailibilityPollTime(Long.parseLong(properties.
+                    getProperty(Constants.AVAILIBILITY_POLLING_TIME)));
+
+            setMetricPollTime(Long.parseLong(properties.
+                    getProperty(Constants.METRIC_POLLING_TIME)));
 
             LOGGER.info("configurations loaded and setting up of configurations completed..");
 

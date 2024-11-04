@@ -191,6 +191,8 @@ public class DiscoveryServices implements InitializeRouter, CrudOperations
                         deviceContext.put(Constants.SSH_PASSWORD,
                                 CommonUtil.decrypt(deviceContext.getString(Constants.SSH_PASSWORD)));
 
+                        deviceContext.put(Constants.DEVICE_TYPE,Constants.SSH);
+
                         deviceData.set(0,deviceContext);
 
                         LOGGER.info(deviceData.encodePrettily());

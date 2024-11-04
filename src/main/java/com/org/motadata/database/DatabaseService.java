@@ -35,6 +35,8 @@ public interface DatabaseService {
     @Fluent
     DatabaseService executeSelect(String query, Handler<AsyncResult<JsonArray>> resultHandler);
 
+    @Fluent
+    DatabaseService batchInsertMetrics(JsonArray metricsArray,Handler<AsyncResult<Void>> resultHandler);
     void close();
 }
 
