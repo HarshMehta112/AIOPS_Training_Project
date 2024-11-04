@@ -13,6 +13,7 @@ import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
+import java.util.function.Predicate;
 import java.util.stream.Stream;
 
 /**
@@ -232,5 +233,7 @@ public class CommonUtil
             LOGGER.error(exception.getMessage(),exception.getStackTrace());
         }
     }
+
+    public static final Predicate<JsonArray> isValidResult = result -> result != null && !result.isEmpty();
 
 }

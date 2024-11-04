@@ -22,7 +22,14 @@ public class AvailibilityPollingEngine extends AbstractVerticle
     {
         Bootstrap.getVertx().eventBus().<JsonArray>localConsumer
                 (Constants.AVAILIBILITY_POLLING_REQUESTS, availibilityPollRequest ->
-                        processRequests(availibilityPollRequest.body()));
+                        {
+                            var availibilityPollContext = availibilityPollRequest.body();
+
+                            if(CommonUtil.isValidResult.test(availibilityPollContext))
+                            {
+                                processRequests(availibilityPollRequest.body());
+                            }
+                        }).exceptionHandler(exception->LOGGER.error(exception.getMessage(),exception.getStackTrace()));
     }
 
     private void processRequests(JsonArray pollRequestContext)
@@ -31,25 +38,34 @@ public class AvailibilityPollingEngine extends AbstractVerticle
         {
             Bootstrap.getVertx().executeBlocking(promise ->
             {
-                var batch = getBatchedData(pollRequestContext);
-
-                LOGGER.info("Remaining context size after batching... " + pollRequestContext.size());
-
-                if (!batch.isEmpty())
+                try
                 {
-                    batch.set(0, batch.getJsonObject(0).put(Constants.DEVICE_TYPE, Constants.PING)
-                            .put(Constants.PLUGIN_CALL_CATEGORY,Constants.POLLING));
+                    var batch = getBatchedData(pollRequestContext);
 
-                    var result = CommonUtil.executePlugin(batch);
+                    LOGGER.info("Remaining context size after batching... " + pollRequestContext.size());
 
-                    var dbOperationContext = new JsonObject()
-                            .put(Constants.DB_OPERATION_TYPE,Constants.BATCH_INSERT_OPERATION)
-                            .put(Constants.DB_VALUES,result);
+                    if (!batch.isEmpty())
+                    {
+                        batch.set(0, batch.getJsonObject(0).put(Constants.DEVICE_TYPE, Constants.PING)
+                                .put(Constants.PLUGIN_CALL_CATEGORY,Constants.POLLING));
 
-                    Bootstrap.getVertx().eventBus().send(Constants.DB_REQUESTS,dbOperationContext);
+                        var result = CommonUtil.executePlugin(batch);
+
+                        var dbOperationContext = new JsonObject()
+                                .put(Constants.DB_OPERATION_TYPE,Constants.BATCH_INSERT_OPERATION)
+                                .put(Constants.DB_VALUES,result);
+
+                        Bootstrap.getVertx().eventBus().send(Constants.DB_REQUESTS,dbOperationContext);
+                    }
+
+                    promise.complete();
                 }
+                catch (Exception exception)
+                {
+                    promise.fail(exception.getCause());
 
-                promise.complete();
+                    LOGGER.error(exception.getMessage(),exception.getStackTrace());
+                }
 
             },false);
         }
