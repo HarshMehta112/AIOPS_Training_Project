@@ -12,7 +12,9 @@ import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
+import java.util.function.Predicate;
 
 public class AuthenticationServices
 {
@@ -34,13 +36,16 @@ public class AuthenticationServices
 
         var password = routingContext.request().getParam(Constants.PASSWORD);
 
-        var loginUsername = ConfigurationService.getLoginUsername();
+        var loginUsername = Optional.ofNullable(ConfigurationService.getLoginUsername());
 
-        var loginPassword = ConfigurationService.getLoginPassword();
+        var loginPassword = Optional.ofNullable(ConfigurationService.getLoginPassword());
 
-        //TODO HARSH USE OPTIONAL INTERFACE
-        if (loginUsername != null && loginUsername.equals(username)
-                && loginPassword != null && loginPassword.equals(password))
+        Predicate<String> isUsernameValid = user -> user.equals(username);
+
+        Predicate<String> isPasswordValid = pass -> pass.equals(password);
+
+        if (loginUsername.filter(isUsernameValid).isPresent() &&
+                loginPassword.filter(isPasswordValid).isPresent())
         {
             // Generate an access token & refresh token
             var accessToken = ConfigurationService.getJwtAuth().generateToken(
@@ -101,11 +106,17 @@ public class AuthenticationServices
     {
         var authHeader = routingContext.request().getHeader("Authorization");
 
-        if (authHeader != null && authHeader.startsWith("Bearer "))
+        Predicate<String> isBearerToken = header -> header.startsWith("Bearer ");
+
+        Predicate<String> isTokenEmpty = String::isEmpty;
+
+        var optionalAuthHeader = Optional.ofNullable(authHeader);
+
+        if (optionalAuthHeader.filter(isBearerToken).isPresent())
         {
             var token = authHeader.substring(7); // Remove "Bearer " prefix
 
-            if (token.isEmpty())
+            if (isTokenEmpty.test(token))
             {
                 routingContext.response().setStatusCode(Constants.HTTP_UNAUTHORIZED_STATUS_CODE)
                         .end("Unauthorized: Token is empty.");
