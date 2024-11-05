@@ -136,5 +136,7 @@ public class Constants
     public static final String RUN_DISCOVERY_DATA_QUERY = "\n" +
             "SELECT d.id AS discovery_id, d.ip_address, d.port, c.ssh_username, c.ssh_password FROM tbl_discoveries d JOIN tbl_credentials c ON d.credential_profile_id = c.id WHERE d.id = "+ "###" +";";
 
+    public static final String METRIC_POLLING_DATA_QUERY = "SELECT d.id, d.ip_address, d.port, c.ssh_username, c.ssh_password FROM tbl_monitor d JOIN tbl_credentials c ON d.credential_profile_id = c.id WHERE ###;";
+
     public static final String METRIC_INSERT_QUERY = "INSERT INTO tbl_metric (id, metric_name, metric_value) VALUES ($1, $2, $3)";
 }

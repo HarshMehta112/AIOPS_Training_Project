@@ -40,7 +40,7 @@ public class PollingTriggerServices extends AbstractVerticle
 
                     if(time<=0)
                     {
-                        LOGGER.info("Polling Started .... "+entry.getKey());
+                        LOGGER.info("Polling request triggered for .... "+entry.getKey());
 
                         // add case statement if another polling group added.
                         Bootstrap.getVertx().eventBus().send(Constants.POLLING_REQUESTS,

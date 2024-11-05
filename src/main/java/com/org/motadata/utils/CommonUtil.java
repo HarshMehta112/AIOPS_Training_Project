@@ -6,6 +6,8 @@ import io.vertx.core.Promise;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.web.RoutingContext;
+
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import javax.crypto.Cipher;
 import javax.crypto.spec.SecretKeySpec;
@@ -235,5 +237,58 @@ public class CommonUtil
     }
 
     public static final Predicate<JsonArray> isValidResult = result -> result != null && !result.isEmpty();
+
+    public static JsonArray getBatchedData(JsonArray context)
+    {
+        var batch = new JsonArray();
+
+        int maxBatchSize = Math.min(2, context.size());
+
+        for (int index = 0; index < maxBatchSize; index++)
+        {
+            batch.add(context.getJsonObject(0));
+
+            context.remove(0);
+        }
+
+        return batch;
+    }
+
+    public static void updateCredentialContext(JsonArray context, Map<Integer,String> credentialContext)
+    {
+        try
+        {
+            for(int index=0;index<context.size();index++)
+            {
+                var deviceContext = context.getJsonObject(index);
+
+                credentialContext.put(deviceContext.getInteger(Constants.ID),
+                        buildString(deviceContext.getString(Constants.IP_ADDRESS),Constants.VALUE_SEPARATOR,
+                                deviceContext.getString(Constants.PORT),Constants.VALUE_SEPARATOR,
+                                deviceContext.getString(Constants.SSH_USERNAME),Constants.VALUE_SEPARATOR,
+                                deviceContext.getString(Constants.SSH_PASSWORD)));
+            }
+        }
+        catch (Exception exception)
+        {
+            LOGGER.error(exception.getMessage(), exception.getStackTrace());
+        }
+    }
+
+    public static JsonArray getMetricPollingContext(Map<Integer,String> credentialContext)
+    {
+        var result = new JsonArray();
+
+        for (Map.Entry<Integer, String> entry : credentialContext.entrySet())
+        {
+            var value = entry.getValue().split(Constants.VALUE_SEPARATOR_WITH_ESCAPE);
+
+            result.add(new JsonObject().put(Constants.ID,entry.getKey()).put(Constants.IP_ADDRESS,value[0])
+                    .put(Constants.PORT,value[1]).put(Constants.SSH_USERNAME,value[2])
+                    .put(Constants.SSH_PASSWORD,decrypt(value[3])));
+        }
+
+        return result;
+    }
 
 }

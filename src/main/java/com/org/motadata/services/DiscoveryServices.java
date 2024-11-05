@@ -172,9 +172,8 @@ public class DiscoveryServices implements InitializeRouter, CrudOperations
 
             var dbRequestContext = new JsonObject();
 
-            dbRequestContext.put(Constants.DB_OPERATION_TYPE,Constants.SELECT_OPERATION);
-
-            dbRequestContext.put(Constants.QUERY,Constants.RUN_DISCOVERY_DATA_QUERY.replace("###",discoveryId));
+            dbRequestContext.put(Constants.DB_OPERATION_TYPE,Constants.SELECT_OPERATION)
+                    .put(Constants.QUERY,Constants.RUN_DISCOVERY_DATA_QUERY.replace("###",discoveryId));
 
             Bootstrap.getVertx().eventBus().<JsonArray>request(Constants.DB_REQUESTS, dbRequestContext, dbOperationReply ->
             {
@@ -186,12 +185,10 @@ public class DiscoveryServices implements InitializeRouter, CrudOperations
                     {
                         var deviceContext = deviceData.getJsonObject(0);
 
-                        deviceContext.put(Constants.PLUGIN_CALL_CATEGORY,Constants.DISCOVERY);
-
                         deviceContext.put(Constants.SSH_PASSWORD,
-                                CommonUtil.decrypt(deviceContext.getString(Constants.SSH_PASSWORD)));
-
-                        deviceContext.put(Constants.DEVICE_TYPE,Constants.SSH);
+                                CommonUtil.decrypt(deviceContext.getString(Constants.SSH_PASSWORD)))
+                                .put(Constants.DEVICE_TYPE,Constants.SSH)
+                                .put(Constants.PLUGIN_CALL_CATEGORY,Constants.DISCOVERY);
 
                         deviceData.set(0,deviceContext);
 

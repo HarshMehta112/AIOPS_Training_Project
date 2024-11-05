@@ -27,21 +27,21 @@ public class AvailibilityPollingEngine extends AbstractVerticle
 
                             if(CommonUtil.isValidResult.test(availibilityPollContext))
                             {
-                                processRequests(availibilityPollRequest.body());
+                                processRequests(availibilityPollContext);
                             }
                         }).exceptionHandler(exception->LOGGER.error(exception.getMessage(),exception.getStackTrace()));
     }
 
     private void processRequests(JsonArray pollRequestContext)
     {
-        if (pollRequestContext.size() > 0)
+        while (pollRequestContext.size() > 0)
         {
+            var batch = CommonUtil.getBatchedData(pollRequestContext);
+
             Bootstrap.getVertx().executeBlocking(promise ->
             {
                 try
                 {
-                    var batch = getBatchedData(pollRequestContext);
-
                     LOGGER.info("Remaining context size after batching... " + pollRequestContext.size());
 
                     if (!batch.isEmpty())
@@ -69,21 +69,5 @@ public class AvailibilityPollingEngine extends AbstractVerticle
 
             },false);
         }
-    }
-
-    private JsonArray getBatchedData(JsonArray pollingContext)
-    {
-        var batch = new JsonArray();
-
-        int maxBatchSize = Math.min(2, pollingContext.size());
-
-        for (int index = 0; index < maxBatchSize; index++)
-        {
-            batch.add(pollingContext.getJsonObject(0));
-
-            pollingContext.remove(0);
-        }
-
-        return batch;
     }
 }
