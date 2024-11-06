@@ -1,8 +1,8 @@
 package com.org.motadata.engines;
 
 import com.org.motadata.Bootstrap;
-import com.org.motadata.services.ConfigurationService;
-import com.org.motadata.utils.Constants;
+import com.org.motadata.utils.ConfigLoaderUtil;
+import com.org.motadata.constant.Constants;
 import com.org.motadata.utils.LoggerUtil;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.json.JsonObject;
@@ -31,7 +31,7 @@ public class DatabaseEngine extends AbstractVerticle
 
                         if(queryBuildContext.getString(Constants.DB_OPERATION_TYPE).equals(Constants.SELECT_OPERATION))
                         {
-                            ConfigurationService.getDatabaseServiceProxy()
+                            ConfigLoaderUtil.getDatabaseServiceProxy()
                                     .executeSelect(queryBuildContext.getString(Constants.QUERY),asyncResult ->
                                     {
                                         if(asyncResult.succeeded())
@@ -51,7 +51,7 @@ public class DatabaseEngine extends AbstractVerticle
                         }
                         else if(queryBuildContext.getString(Constants.DB_OPERATION_TYPE).equals(Constants.BATCH_INSERT_OPERATION))
                         {
-                            ConfigurationService.getDatabaseServiceProxy()
+                            ConfigLoaderUtil.getDatabaseServiceProxy()
                                     .batchInsertMetrics(queryBuildContext.getJsonArray(Constants.DB_VALUES)
                                             ,asyncResult ->
                                             {
@@ -71,7 +71,7 @@ public class DatabaseEngine extends AbstractVerticle
                         }
                         else
                         {
-                            ConfigurationService.getDatabaseServiceProxy()
+                            ConfigLoaderUtil.getDatabaseServiceProxy()
                                     .executeQuery(queryBuildContext.getString(Constants.QUERY)
                                             ,queryBuildContext.getJsonObject(Constants.DB_VALUES),asyncResult ->
                                             {

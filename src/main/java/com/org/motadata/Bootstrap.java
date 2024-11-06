@@ -5,10 +5,10 @@ import com.org.motadata.engines.AvailibilityPollingEngine;
 import com.org.motadata.engines.DatabaseEngine;
 import com.org.motadata.engines.DiscoveryEngine;
 import com.org.motadata.engines.MetricPollingEngine;
-import com.org.motadata.services.PollingEngineManagerServices;
-import com.org.motadata.services.PollingTriggerServices;
-import com.org.motadata.services.QueryBuilderServices;
-import com.org.motadata.services.RoutingServices;
+import com.org.motadata.service.PollingRouter;
+import com.org.motadata.service.PollingTrigger;
+import com.org.motadata.service.QueryBuilder;
+import com.org.motadata.api.ApiServer;
 import io.vertx.core.DeploymentOptions;
 import io.vertx.core.ThreadingModel;
 import io.vertx.core.Vertx;
@@ -37,17 +37,17 @@ public class Bootstrap
         VERTX.deployVerticle(DatabaseEngine.class.getName(),
                 new DeploymentOptions().setThreadingModel(ThreadingModel.WORKER).setWorkerPoolSize(5));
 
-        VERTX.deployVerticle(RoutingServices.class.getName());
+        VERTX.deployVerticle(ApiServer.class.getName());
 
-        VERTX.deployVerticle(QueryBuilderServices.class.getName(),
+        VERTX.deployVerticle(QueryBuilder.class.getName(),
                 new DeploymentOptions().setThreadingModel(ThreadingModel.WORKER).setWorkerPoolSize(2));
 
         VERTX.deployVerticle(DiscoveryEngine.class.getName(),
                 new DeploymentOptions().setThreadingModel(ThreadingModel.WORKER).setWorkerPoolSize(2));
 
-        VERTX.deployVerticle(PollingTriggerServices.class.getName());
+        VERTX.deployVerticle(PollingTrigger.class.getName());
 
-        VERTX.deployVerticle(PollingEngineManagerServices.class.getName(), new DeploymentOptions().setThreadingModel(ThreadingModel.WORKER).setWorkerPoolSize(20));
+        VERTX.deployVerticle(PollingRouter.class.getName(), new DeploymentOptions().setThreadingModel(ThreadingModel.WORKER).setWorkerPoolSize(20));
         VERTX.deployVerticle(AvailibilityPollingEngine.class.getName(), new DeploymentOptions().setThreadingModel(ThreadingModel.WORKER).setWorkerPoolSize(20));
 
 

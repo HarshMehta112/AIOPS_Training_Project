@@ -2,8 +2,9 @@ package com.org.motadata.engines;
 
 import com.org.motadata.Bootstrap;
 import com.org.motadata.utils.CommonUtil;
-import com.org.motadata.utils.Constants;
+import com.org.motadata.constant.Constants;
 import com.org.motadata.utils.LoggerUtil;
+import com.org.motadata.utils.PluginExecutorUtil;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
@@ -25,7 +26,7 @@ public class AvailibilityPollingEngine extends AbstractVerticle
                         {
                             var availibilityPollContext = availibilityPollRequest.body();
 
-                            if(CommonUtil.isValidResult.test(availibilityPollContext))
+                            if(CommonUtil.isNonNull.test(availibilityPollContext))
                             {
                                 processRequests(availibilityPollContext);
                             }
@@ -49,7 +50,7 @@ public class AvailibilityPollingEngine extends AbstractVerticle
                         batch.set(0, batch.getJsonObject(0).put(Constants.DEVICE_TYPE, Constants.PING)
                                 .put(Constants.PLUGIN_CALL_CATEGORY,Constants.POLLING));
 
-                        var result = CommonUtil.executePlugin(batch);
+                        var result = PluginExecutorUtil.executePlugin(batch);
 
                         var dbOperationContext = new JsonObject()
                                 .put(Constants.DB_OPERATION_TYPE,Constants.BATCH_INSERT_OPERATION)

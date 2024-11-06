@@ -1,8 +1,9 @@
-package com.org.motadata.services;
+package com.org.motadata.service;
 
 import com.org.motadata.Bootstrap;
 import com.org.motadata.utils.CommonUtil;
-import com.org.motadata.utils.Constants;
+import com.org.motadata.constant.Constants;
+import com.org.motadata.utils.HandleRequestUtil;
 import com.org.motadata.utils.LoggerUtil;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Future;
@@ -20,7 +21,7 @@ import java.util.Random;
  * Author: Harsh Mehta
  * Date: 11/4/24 10:21 AM
  */
-public class PollingEngineManagerServices extends AbstractVerticle
+public class PollingRouter extends AbstractVerticle
 {
     private static final LoggerUtil LOGGER = new LoggerUtil(CommonUtil.class);
 
@@ -89,7 +90,7 @@ public class PollingEngineManagerServices extends AbstractVerticle
             queryBuildContext.put(Constants.DB_OPERATION_TYPE, Constants.SELECT_OPERATION)
                     .put(Constants.DB_TABLE_NAME, Constants.MONITOR_TABLE);
 
-            CommonUtil.handleSelectRequest(queryBuildContext).onComplete(deviceContexts ->
+            HandleRequestUtil.handleSelectRequest(queryBuildContext).onComplete(deviceContexts ->
             {
                 var result = deviceContexts.result();
 
@@ -138,10 +139,6 @@ public class PollingEngineManagerServices extends AbstractVerticle
 
                         deviceArray.add(monitorId);
                     }
-
-                    System.out.println(monitorIdToConsumer);
-
-                    System.out.println(consumerAddressToDevices);
 
                     for (Map.Entry<String, ArrayList> entry : consumerAddressToDevices.entrySet())
                     {

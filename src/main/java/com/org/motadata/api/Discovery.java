@@ -1,10 +1,12 @@
-package com.org.motadata.services;
+package com.org.motadata.api;
 
 import com.org.motadata.Bootstrap;
 import com.org.motadata.impl.CrudOperations;
 import com.org.motadata.impl.InitializeRouter;
+import com.org.motadata.utils.CipherUtil;
 import com.org.motadata.utils.CommonUtil;
-import com.org.motadata.utils.Constants;
+import com.org.motadata.constant.Constants;
+import com.org.motadata.utils.HandleRequestUtil;
 import com.org.motadata.utils.LoggerUtil;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
@@ -16,9 +18,9 @@ import io.vertx.ext.web.RoutingContext;
  * Author: Harsh Mehta
  * Date: 10/29/24 1:54 PM
  */
-public class DiscoveryServices implements InitializeRouter, CrudOperations
+public class Discovery implements InitializeRouter, CrudOperations
 {
-    private static final LoggerUtil LOGGER = new LoggerUtil(DiscoveryServices.class);
+    private static final LoggerUtil LOGGER = new LoggerUtil(Discovery.class);
 
     @Override
     public void initRouter(Router router)
@@ -44,7 +46,7 @@ public class DiscoveryServices implements InitializeRouter, CrudOperations
             // check name, ip, port, credential profile id if null then return
             var discoveryContext = routingContext.body().asJsonObject();
 
-            if(discoveryContext != null && discoveryContext.containsKey(Constants.DISCOVERY_NAME)
+            if(CommonUtil.isNonNull.test(discoveryContext) && discoveryContext.containsKey(Constants.DISCOVERY_NAME)
                     && discoveryContext.containsKey(Constants.IP_ADDRESS)
                     && discoveryContext.containsKey(Constants.PORT) &&
                     discoveryContext.containsKey(Constants.CREDENTIAL_PROFILE_ID))
@@ -55,7 +57,7 @@ public class DiscoveryServices implements InitializeRouter, CrudOperations
                         .put(Constants.DB_TABLE_NAME,Constants.DISCOVERY_PROFILE_TABLE)
                         .put(Constants.DB_VALUES,discoveryContext);
 
-                CommonUtil.handleModificationRequest(queryBuildContext,routingContext,
+                HandleRequestUtil.handleModificationRequest(queryBuildContext,routingContext,
                         "Discovery Profile added successfully...",
                         "Discovery Profile not created. Please try again...");
             }
@@ -89,7 +91,7 @@ public class DiscoveryServices implements InitializeRouter, CrudOperations
 
             queryBuildContext.put(Constants.DB_TABLE_NAME,Constants.DISCOVERY_PROFILE_TABLE);
 
-            CommonUtil.handleSelectRequest(queryBuildContext,routingContext);
+            HandleRequestUtil.handleSelectRequest(queryBuildContext,routingContext);
         }
         catch (Exception exception)
         {
@@ -107,7 +109,7 @@ public class DiscoveryServices implements InitializeRouter, CrudOperations
 
             var discoveryId = routingContext.request().getParam(Constants.ID);
 
-            if(discoveryContext != null)
+            if(CommonUtil.isNonNull.test(discoveryContext))
             {
                 var queryBuildContext = new JsonObject();
 
@@ -117,7 +119,7 @@ public class DiscoveryServices implements InitializeRouter, CrudOperations
                         .buildString(Constants.ID," = ", discoveryId))
                         .put(Constants.DB_VALUES,discoveryContext);
 
-                CommonUtil.handleModificationRequest(queryBuildContext,routingContext,
+                HandleRequestUtil.handleModificationRequest(queryBuildContext,routingContext,
                         "Discovery Profile updated successfully...",
                         "Discovery Profile not updated. Please try again...");
             }
@@ -154,7 +156,7 @@ public class DiscoveryServices implements InitializeRouter, CrudOperations
                     .put(Constants.DB_CONDITIONS,CommonUtil
                     .buildString(Constants.ID," = " , discoveryId));
 
-            CommonUtil.handleModificationRequest(queryBuildContext,routingContext,
+            HandleRequestUtil.handleModificationRequest(queryBuildContext,routingContext,
                     "Discovery Profile deleted successfully...",
                     "Discovery Profile not deleted. Please try again...");
         }
@@ -186,9 +188,10 @@ public class DiscoveryServices implements InitializeRouter, CrudOperations
                         var deviceContext = deviceData.getJsonObject(0);
 
                         deviceContext.put(Constants.SSH_PASSWORD,
-                                CommonUtil.decrypt(deviceContext.getString(Constants.SSH_PASSWORD)))
+                                CipherUtil.decrypt(deviceContext.getString(Constants.SSH_PASSWORD)))
                                 .put(Constants.DEVICE_TYPE,Constants.SSH)
-                                .put(Constants.PLUGIN_CALL_CATEGORY,Constants.DISCOVERY);
+                                .put(Constants.PLUGIN_CALL_CATEGORY,Constants.DISCOVERY)
+                                .put(Constants.PORT,deviceContext.getString(Constants.PORT));
 
                         deviceData.set(0,deviceContext);
 

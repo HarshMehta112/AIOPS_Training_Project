@@ -1,9 +1,11 @@
-package com.org.motadata.services;
+package com.org.motadata.api;
 
 import com.org.motadata.impl.CrudOperations;
 import com.org.motadata.impl.InitializeRouter;
+import com.org.motadata.utils.CipherUtil;
 import com.org.motadata.utils.CommonUtil;
-import com.org.motadata.utils.Constants;
+import com.org.motadata.constant.Constants;
+import com.org.motadata.utils.HandleRequestUtil;
 import com.org.motadata.utils.LoggerUtil;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.web.Router;
@@ -14,11 +16,22 @@ import io.vertx.ext.web.RoutingContext;
  * Author: Harsh Mehta
  * Date: 10/31/24 12:36 PM
  */
-public class CredentialProfileServices implements InitializeRouter, CrudOperations
+public class CredentialProfile implements InitializeRouter, CrudOperations
 {
 
-    private static final LoggerUtil LOGGER = new LoggerUtil(CredentialProfileServices.class);
+    private static final LoggerUtil LOGGER = new LoggerUtil(CredentialProfile.class);
 
+    @Override
+    public void initRouter(Router router)
+    {
+        router.get("/" + "getAll").handler(this::getAll);
+
+        router.post("/" + "create").handler(this::create);
+
+        router.put("/" + "update" + "/:id").handler(this::update);
+
+        router.delete("/" + "delete" + "/:id").handler(this::delete);
+    }
     @Override
     public void create(RoutingContext routingContext)
     {
@@ -27,7 +40,8 @@ public class CredentialProfileServices implements InitializeRouter, CrudOperatio
             // check name, username, password then return
             var credentialContext = routingContext.body().asJsonObject();
 
-            if(credentialContext != null && credentialContext.containsKey(Constants.CREDENTIAL_PROFILE_NAME)
+            if(CommonUtil.isNonNull.test(credentialContext) &&
+                    credentialContext.containsKey(Constants.CREDENTIAL_PROFILE_NAME)
                     && credentialContext.containsKey(Constants.SSH_USERNAME)
                     && credentialContext.containsKey(Constants.SSH_PASSWORD))
             {
@@ -36,12 +50,12 @@ public class CredentialProfileServices implements InitializeRouter, CrudOperatio
                 queryBuildContext.put(Constants.DB_OPERATION_TYPE,Constants.INSERT_OPERATION)
                         .put(Constants.DB_TABLE_NAME,Constants.CREDENTIAL_PROFILE_TABLE);
 
-                credentialContext.put(Constants.SSH_PASSWORD,CommonUtil.
+                credentialContext.put(Constants.SSH_PASSWORD, CipherUtil.
                         encrypt(credentialContext.getString(Constants.SSH_PASSWORD)));
 
                 queryBuildContext.put(Constants.DB_VALUES,credentialContext);
 
-                CommonUtil.handleModificationRequest(queryBuildContext,routingContext,
+                HandleRequestUtil.handleModificationRequest(queryBuildContext,routingContext,
                         "Credential Profile added successfully...",
                         "Credential Profile not created. Please try again...");
             }
@@ -74,7 +88,7 @@ public class CredentialProfileServices implements InitializeRouter, CrudOperatio
             queryBuildContext.put(Constants.DB_OPERATION_TYPE,Constants.SELECT_OPERATION)
                     .put(Constants.DB_TABLE_NAME,Constants.CREDENTIAL_PROFILE_TABLE);
 
-            CommonUtil.handleSelectRequest(queryBuildContext,routingContext);
+            HandleRequestUtil.handleSelectRequest(queryBuildContext,routingContext);
         }
         catch (Exception exception)
         {
@@ -92,7 +106,7 @@ public class CredentialProfileServices implements InitializeRouter, CrudOperatio
 
             var credentialId = routingContext.request().getParam(Constants.ID);
 
-            if(credentialContext != null)
+            if(CommonUtil.isNonNull.test(credentialContext))
             {
                 var queryBuildContext = new JsonObject();
 
@@ -103,13 +117,13 @@ public class CredentialProfileServices implements InitializeRouter, CrudOperatio
 
                 if (credentialContext.containsKey(Constants.SSH_PASSWORD))
                 {
-                    credentialContext.put(Constants.SSH_PASSWORD,CommonUtil.
+                    credentialContext.put(Constants.SSH_PASSWORD,CipherUtil.
                             encrypt(credentialContext.getString(Constants.SSH_PASSWORD)));
                 }
 
                 queryBuildContext.put(Constants.DB_VALUES,credentialContext);
 
-                CommonUtil.handleModificationRequest(queryBuildContext,routingContext,
+                HandleRequestUtil.handleModificationRequest(queryBuildContext,routingContext,
                         "Credential Profile updated successfully...",
                         "Credential Profile not updated. Please try again...");
             }
@@ -146,7 +160,7 @@ public class CredentialProfileServices implements InitializeRouter, CrudOperatio
                     .put(Constants.DB_CONDITIONS,CommonUtil
                     .buildString(Constants.ID," = " , credentialId));
 
-            CommonUtil.handleModificationRequest(queryBuildContext,routingContext,
+            HandleRequestUtil.handleModificationRequest(queryBuildContext,routingContext,
                     "Credential Profile deleted successfully...",
                     "Credential Profile not deleted. Please try again...");
         }
@@ -155,17 +169,5 @@ public class CredentialProfileServices implements InitializeRouter, CrudOperatio
             LOGGER.error(exception.getMessage(),exception.getStackTrace());
         }
 
-    }
-
-    @Override
-    public void initRouter(Router router)
-    {
-        router.get("/" + "getAll").handler(this::getAll);
-
-        router.post("/" + "create").handler(this::create);
-
-        router.put("/" + "update" + "/:id").handler(this::update);
-
-        router.delete("/" + "delete" + "/:id").handler(this::delete);
     }
 }

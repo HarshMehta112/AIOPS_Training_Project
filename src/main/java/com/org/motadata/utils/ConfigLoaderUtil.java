@@ -1,10 +1,9 @@
-package com.org.motadata.services;
+package com.org.motadata.utils;
 
 import com.org.motadata.Bootstrap;
+import com.org.motadata.constant.Constants;
 import com.org.motadata.database.DatabaseService;
-import com.org.motadata.utils.CommonUtil;
-import com.org.motadata.utils.Constants;
-import com.org.motadata.utils.LoggerUtil;
+import com.org.motadata.flyway.FlywayExecutor;
 import io.vertx.ext.auth.PubSecKeyOptions;
 import io.vertx.ext.auth.jwt.JWTAuth;
 import io.vertx.ext.auth.jwt.JWTAuthOptions;
@@ -18,9 +17,9 @@ import java.util.logging.Level;
  * Author: Harsh Mehta
  * Date: 10/30/24 1:08 PM
  */
-public class ConfigurationService
+public class ConfigLoaderUtil
 {
-    private static final LoggerUtil LOGGER = new LoggerUtil(ConfigurationService.class);
+    private static final LoggerUtil LOGGER = new LoggerUtil(ConfigLoaderUtil.class);
 
     private static JWTAuth jwtAuth;
     private static String loginUsername;
@@ -38,7 +37,7 @@ public class ConfigurationService
     }
 
     public static void setAvailibilityPollTime(long availibilityPollTime) {
-        ConfigurationService.availibilityPollTime = availibilityPollTime;
+        ConfigLoaderUtil.availibilityPollTime = availibilityPollTime;
     }
 
     public static long getMetricPollTime() {
@@ -46,7 +45,7 @@ public class ConfigurationService
     }
 
     public static void setMetricPollTime(long metricPollTime) {
-        ConfigurationService.metricPollTime = metricPollTime;
+        ConfigLoaderUtil.metricPollTime = metricPollTime;
     }
 
     public static DatabaseService getDatabaseServiceProxy() {
@@ -54,7 +53,7 @@ public class ConfigurationService
     }
 
     public static void setDatabaseServiceProxy(DatabaseService databaseServiceProxy) {
-        ConfigurationService.databaseServiceProxy = databaseServiceProxy;
+        ConfigLoaderUtil.databaseServiceProxy = databaseServiceProxy;
     }
 
     public static String getSslKeystorePath() {
@@ -62,7 +61,7 @@ public class ConfigurationService
     }
 
     public static void setSslKeystorePath(String sslKeystorePath) {
-        ConfigurationService.sslKeystorePath = sslKeystorePath;
+        ConfigLoaderUtil.sslKeystorePath = sslKeystorePath;
     }
 
     public static String getSslKeystorePassword() {
@@ -70,21 +69,81 @@ public class ConfigurationService
     }
 
     public static void setSslKeystorePassword(String sslKeystorePassword) {
-        ConfigurationService.sslKeystorePassword = sslKeystorePassword;
+        ConfigLoaderUtil.sslKeystorePassword = sslKeystorePassword;
     }
 
     private static String sslKeystorePath;
 
     private static String sslKeystorePassword;
 
-    private ConfigurationService() {}
+    private static String dbHost;
+
+    private static String dbName;
+
+    public static String getDbHost() {
+        return dbHost;
+    }
+
+    public static void setDbHost(String dbHost) {
+        ConfigLoaderUtil.dbHost = dbHost;
+    }
+
+    public static String getDbName() {
+        return dbName;
+    }
+
+    public static void setDbName(String dbName) {
+        ConfigLoaderUtil.dbName = dbName;
+    }
+
+    public static String getDbUsername() {
+        return dbUsername;
+    }
+
+    public static void setDbUsername(String dbUsername) {
+        ConfigLoaderUtil.dbUsername = dbUsername;
+    }
+
+    public static String getDbPassword() {
+        return dbPassword;
+    }
+
+    public static void setDbPassword(String dbPassword) {
+        ConfigLoaderUtil.dbPassword = dbPassword;
+    }
+
+    public static int getDbPort() {
+        return dbPort;
+    }
+
+    public static void setDbPort(int dbPort) {
+        ConfigLoaderUtil.dbPort = dbPort;
+    }
+
+    private static String dbUsername;
+
+    private static String dbPassword;
+
+    private static int dbPort;
+
+    private static int dbMaxConnections;
+
+    private ConfigLoaderUtil() {}
 
     public static String getLoginUsername() {
         return loginUsername;
     }
 
+    public static int getDbMaxConnections() {
+        return dbMaxConnections;
+    }
+
+    public static void setDbMaxConnections(int dbMaxConnections) {
+        ConfigLoaderUtil.dbMaxConnections = dbMaxConnections;
+    }
+
     public static void setLoginUsername(String loginUsername) {
-        ConfigurationService.loginUsername = loginUsername;
+        ConfigLoaderUtil.loginUsername = loginUsername;
     }
 
     public static String getLoginPassword() {
@@ -92,7 +151,7 @@ public class ConfigurationService
     }
 
     public static void setLoginPassword(String loginPassword) {
-        ConfigurationService.loginPassword = loginPassword;
+        ConfigLoaderUtil.loginPassword = loginPassword;
     }
 
     public static JWTAuth getJwtAuth() {
@@ -100,7 +159,7 @@ public class ConfigurationService
     }
 
     public static void setJwtAuth(JWTAuth jwtAuth) {
-        ConfigurationService.jwtAuth = jwtAuth;
+        ConfigLoaderUtil.jwtAuth = jwtAuth;
     }
 
     static
@@ -114,7 +173,7 @@ public class ConfigurationService
         var properties = new Properties();
 
         try (FileInputStream inputStream = new FileInputStream(CommonUtil.buildString
-                (Constants.CURRENT_DIR,Constants.PATH_SEPARATOR,Constants.PROPERTIES_FILE)))
+                (Constants.RESOURCES_PATH,Constants.PATH_SEPARATOR,Constants.PROPERTIES_FILE)))
         {
 
             properties.load(inputStream);
@@ -122,12 +181,6 @@ public class ConfigurationService
             setLoginUsername(properties.getProperty(Constants.USER_NAME));
 
             setLoginPassword(properties.getProperty(Constants.PASSWORD));
-
-            LoggerUtil.setLogLevel(Boolean.parseBoolean(properties.getProperty
-                    (Constants.DEBUG_LOG_FLAG))?Level.FINE:Level.INFO);
-
-            LoggerUtil.setDebugEnabled(Boolean.parseBoolean(properties.getProperty
-                            (Constants.DEBUG_LOG_FLAG)));
 
             setSslKeystorePath(properties.getProperty(Constants.SSL_KEYSTORE_PATH));
 
@@ -138,7 +191,8 @@ public class ConfigurationService
 
             var privateKeyPath = properties.getProperty("privateKeyPath");
 
-            if (publicKeyPath == null || privateKeyPath == null)
+            if (!(CommonUtil.isNonNull.test(privateKeyPath)
+                    || CommonUtil.isNonNull.test(publicKeyPath)))
             {
                 LOGGER.warn("Key paths are not set in config.properties");
 
@@ -169,6 +223,20 @@ public class ConfigurationService
 
             setMetricPollTime(Long.parseLong(properties.
                     getProperty(Constants.METRIC_POLLING_TIME)));
+
+            setDbHost(properties.getProperty(Constants.DB_HOST));
+
+            setDbName(properties.getProperty(Constants.DB_DATABASE_NAME));
+
+            setDbPassword(properties.getProperty(Constants.DB_PASSWORD));
+
+            setDbPort(Integer.parseInt(properties.getProperty(Constants.DB_PORT)));
+
+            setDbUsername(properties.getProperty(Constants.DB_USERNAME));
+
+            setDbMaxConnections(Integer.parseInt(properties.getProperty(Constants.DB_MAX_CONNECTIONS)));
+
+            FlywayExecutor.executeDbMigration();
 
             LOGGER.info("configurations loaded and setting up of configurations completed..");
 

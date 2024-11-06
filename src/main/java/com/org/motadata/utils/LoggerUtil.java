@@ -25,16 +25,6 @@ public class LoggerUtil {
         this.className = CommonUtil.buildString("[",clazz.getName(),"] ");
     }
 
-    // Method to set the logging level
-    public static void setLogLevel(Level level) {
-        currentLogLevel = level;
-        Logger.getLogger("").setLevel(currentLogLevel); // Set the global log level
-    }
-
-    // Method to enable/disable debug logging
-    public static void setDebugEnabled(boolean enabled) {
-        debugEnabled = enabled;
-    }
 
     // Method to log messages at the specified level
     public void log(Level level, String message) {

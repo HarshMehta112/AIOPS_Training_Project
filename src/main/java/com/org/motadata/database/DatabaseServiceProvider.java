@@ -7,6 +7,7 @@ package com.org.motadata.database;
  */
 
 import com.org.motadata.Bootstrap;
+import com.org.motadata.utils.ConfigLoaderUtil;
 import com.org.motadata.utils.LoggerUtil;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.serviceproxy.ServiceBinder;
@@ -20,24 +21,25 @@ public class DatabaseServiceProvider extends AbstractVerticle {
     private static final LoggerUtil LOGGER = new LoggerUtil(DatabaseServiceProvider.class);
 
     // Create PostgreSQL connection options
-    private static final PgConnectOptions connectOptions = new PgConnectOptions()
-            .setPort(5432)
-            .setHost("localhost")
-            .setDatabase("postgres")
-            .setUser("harsh")
-            .setPassword("Mind@123");
+    private static final PgConnectOptions CONNECT_OPTIONS = new PgConnectOptions()
+            .setPort(ConfigLoaderUtil.getDbPort())
+            .setHost(ConfigLoaderUtil.getDbHost())
+            .setDatabase(ConfigLoaderUtil.getDbName())
+            .setUser(ConfigLoaderUtil.getDbUsername())
+            .setPassword(ConfigLoaderUtil.getDbPassword())
+            .setReconnectAttempts(3).setReconnectInterval(2000L);
 
     // Pool options
-    private static final PoolOptions poolOptions = new PoolOptions()
-            .setMaxSize(5);
+    private static final PoolOptions POOL_OPTIONS = new PoolOptions()
+            .setMaxSize(ConfigLoaderUtil.getDbMaxConnections());
 
     // Create the pooled client
-    private static final Pool pool = Pool.pool(Bootstrap.getVertx(), connectOptions, poolOptions);
+    private static final Pool POOL = Pool.pool(Bootstrap.getVertx(), CONNECT_OPTIONS, POOL_OPTIONS);
 
     @Override
     public void start()
     {
-        DatabaseService.create(pool, result ->
+        DatabaseService.create(POOL, result ->
         {
             try
             {

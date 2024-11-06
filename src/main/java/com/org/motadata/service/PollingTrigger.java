@@ -1,7 +1,8 @@
-package com.org.motadata.services;
+package com.org.motadata.service;
 
 import com.org.motadata.Bootstrap;
-import com.org.motadata.utils.Constants;
+import com.org.motadata.utils.ConfigLoaderUtil;
+import com.org.motadata.constant.Constants;
 import com.org.motadata.utils.LoggerUtil;
 import io.vertx.core.AbstractVerticle;
 
@@ -13,18 +14,18 @@ import java.util.Map;
  * Author: Harsh Mehta
  * Date: 11/4/24 10:21 AM
  */
-public class PollingTriggerServices extends AbstractVerticle
+public class PollingTrigger extends AbstractVerticle
 {
-    private static final LoggerUtil LOGGER = new LoggerUtil(PollingTriggerServices.class);
+    private static final LoggerUtil LOGGER = new LoggerUtil(PollingTrigger.class);
 
     @Override
     public void start()
     {
         var scheduleTime = new HashMap<String,Long>();
 
-        scheduleTime.put(Constants.AVAILIBILITY_POLLING_TIME, ConfigurationService.getAvailibilityPollTime());
+        scheduleTime.put(Constants.AVAILIBILITY_POLLING_TIME, ConfigLoaderUtil.getAvailibilityPollTime());
 
-        scheduleTime.put(Constants.METRIC_POLLING_TIME,ConfigurationService.getMetricPollTime());
+        scheduleTime.put(Constants.METRIC_POLLING_TIME, ConfigLoaderUtil.getMetricPollTime());
 
         var updatedScheduleTime = new HashMap<>(scheduleTime);
 

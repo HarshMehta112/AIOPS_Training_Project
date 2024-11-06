@@ -1,8 +1,6 @@
-package com.org.motadata.services;
+package com.org.motadata.utils;
 
-import com.org.motadata.utils.CommonUtil;
-import com.org.motadata.utils.Constants;
-import com.org.motadata.utils.LoggerUtil;
+import com.org.motadata.constant.Constants;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.auth.JWTOptions;
 import io.vertx.ext.auth.authentication.TokenCredentials;
@@ -16,11 +14,11 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.function.Predicate;
 
-public class AuthenticationServices
+public class AuthenticationUtil
 {
-    private static final LoggerUtil LOGGER = new LoggerUtil(ConfigurationService.class);
+    private static final LoggerUtil LOGGER = new LoggerUtil(ConfigLoaderUtil.class);
 
-    private AuthenticationServices() {}
+    private AuthenticationUtil() {}
 
     // Add a map to store refresh tokens
     private static final HashMap<String, String> refreshTokenStore = new HashMap<>();
@@ -36,9 +34,9 @@ public class AuthenticationServices
 
         var password = routingContext.request().getParam(Constants.PASSWORD);
 
-        var loginUsername = Optional.ofNullable(ConfigurationService.getLoginUsername());
+        var loginUsername = Optional.ofNullable(ConfigLoaderUtil.getLoginUsername());
 
-        var loginPassword = Optional.ofNullable(ConfigurationService.getLoginPassword());
+        var loginPassword = Optional.ofNullable(ConfigLoaderUtil.getLoginPassword());
 
         Predicate<String> isUsernameValid = user -> user.equals(username);
 
@@ -48,7 +46,7 @@ public class AuthenticationServices
                 loginPassword.filter(isPasswordValid).isPresent())
         {
             // Generate an access token & refresh token
-            var accessToken = ConfigurationService.getJwtAuth().generateToken(
+            var accessToken = ConfigLoaderUtil.getJwtAuth().generateToken(
                     new JsonObject().put(Constants.USER_NAME,username),
                     new JWTOptions().setAlgorithm(Constants.JWT_TOKEN_ALGORITHM)
                             .setExpiresInSeconds(30000));
@@ -83,12 +81,13 @@ public class AuthenticationServices
         if (refreshTokenStore.containsKey(username) && refreshTokenStore.get(username) != null)
         {
             // Generate a new access token
-            var newAccessToken = ConfigurationService.getJwtAuth().generateToken(new JsonObject()
+            var newAccessToken = ConfigLoaderUtil.getJwtAuth().generateToken(new JsonObject()
                     .put(Constants.USER_NAME, username), new JWTOptions().
                     setAlgorithm(Constants.JWT_TOKEN_ALGORITHM).setExpiresInSeconds(30));
 
             routingContext.response().putHeader(Constants.CONTENT_TYPE, Constants.CONTENT_TYPE_APPLICATION_JSON)
-                    .end(new JsonObject().put("message","Your previous access token expired, So generated new Token... please request again using below mentioned token")
+                    .end(new JsonObject().put("message","Your previous access token expired, So generated new Token..." +
+                                    " please request again using below mentioned token")
                             .put(Constants.ACCESS_TOKEN, newAccessToken).encodePrettily());
 
             refreshTokenStore.put(username,CommonUtil.buildString(refreshToken,
@@ -96,7 +95,8 @@ public class AuthenticationServices
         }
         else
         {
-            routingContext.response().setStatusCode(Constants.HTTP_UNAUTHORIZED_STATUS_CODE).end("Unauthorized: Invalid refresh token.");
+            routingContext.response().setStatusCode(Constants.HTTP_UNAUTHORIZED_STATUS_CODE)
+                    .end("Unauthorized: Invalid refresh token.");
         }
     }
 
@@ -122,7 +122,7 @@ public class AuthenticationServices
                 return;
             }
 
-            ConfigurationService.getJwtAuth().authenticate(new TokenCredentials(token), res ->
+            ConfigLoaderUtil.getJwtAuth().authenticate(new TokenCredentials(token), res ->
             {
                 if (res.succeeded())
                 {
@@ -130,24 +130,27 @@ public class AuthenticationServices
                 }
                 else
                 {
-                    String refreshToken = AuthenticationServices.getRefreshTokenStore().get("admin");
+                    String refreshToken = AuthenticationUtil.getRefreshTokenStore().get("admin");
 
-                    if(refreshToken != null && isTokenExpired(refreshToken.split(Constants.VALUE_SEPARATOR_WITH_ESCAPE)[1]))
+                    if(CommonUtil.isNonNull.test(refreshToken) &&
+                            isTokenExpired(refreshToken.split(Constants.VALUE_SEPARATOR_WITH_ESCAPE)[1]))
                     {
-                        AuthenticationServices.refreshTokenHandler(routingContext,refreshToken);
+                        AuthenticationUtil.refreshTokenHandler(routingContext,refreshToken);
                     }
                     else
                     {
                         routingContext.response().setStatusCode(404).end("Unauthorized: Invalid token provided.");
 
-                        LOGGER.error("Some error occurred in API Authentication process " + res.cause().getMessage(),res.cause().getStackTrace());
+                        LOGGER.error("Some error occurred in API Authentication process " +
+                                res.cause().getMessage(),res.cause().getStackTrace());
                     }
                 }
             });
         }
         else
         {
-            routingContext.response().setStatusCode(Constants.HTTP_UNAUTHORIZED_STATUS_CODE).end("Unauthorized: No token provided.");
+            routingContext.response().setStatusCode(Constants.HTTP_UNAUTHORIZED_STATUS_CODE)
+                    .end("Unauthorized: No token provided.");
 
             LOGGER.warn("Wrong Bearer Token received in API Authentication process ");
 

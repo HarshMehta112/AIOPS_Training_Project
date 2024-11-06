@@ -1,4 +1,4 @@
-package com.org.motadata.utils;
+package com.org.motadata.constant;
 
 import java.nio.file.FileSystems;
 
@@ -15,9 +15,9 @@ public class Constants
 
     public static final String JWT_TOKEN_ALGORITHM = "RS512";
 
-    public static final String CURRENT_DIR = System.getProperty("user.dir");
-
     public static final String PATH_SEPARATOR = FileSystems.getDefault().getSeparator();
+
+    public static final String RESOURCES_PATH = "/home/harsh/Project/AIOPS_Training_Project/src/main/resources/";
 
     public static final String PROPERTIES_FILE = "config.properties";
 
@@ -139,4 +139,16 @@ public class Constants
     public static final String METRIC_POLLING_DATA_QUERY = "SELECT d.id, d.ip_address, d.port, c.ssh_username, c.ssh_password FROM tbl_monitor d JOIN tbl_credentials c ON d.credential_profile_id = c.id WHERE ###;";
 
     public static final String METRIC_INSERT_QUERY = "INSERT INTO tbl_metric (id, metric_name, metric_value) VALUES ($1, $2, $3)";
+
+    public static final String DB_HOST = "dbHost";
+
+    public static final String DB_PORT = "dbPort";
+
+    public static final String DB_DATABASE_NAME = "dbDatabase";
+
+    public static final String DB_USERNAME = "dbUser";
+
+    public static final String DB_PASSWORD = "dbPassword";
+
+    public static final String DB_MAX_CONNECTIONS = "dbMaxConnections";
 }

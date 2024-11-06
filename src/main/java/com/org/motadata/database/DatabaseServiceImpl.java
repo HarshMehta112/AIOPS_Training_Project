@@ -1,6 +1,6 @@
 package com.org.motadata.database;
 
-import com.org.motadata.utils.Constants;
+import com.org.motadata.constant.Constants;
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Future;
 import io.vertx.core.Handler;

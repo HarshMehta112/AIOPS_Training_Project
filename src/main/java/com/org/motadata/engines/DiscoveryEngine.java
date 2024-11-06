@@ -2,8 +2,9 @@ package com.org.motadata.engines;
 
 import com.org.motadata.Bootstrap;
 import com.org.motadata.utils.CommonUtil;
-import com.org.motadata.utils.Constants;
+import com.org.motadata.constant.Constants;
 import com.org.motadata.utils.LoggerUtil;
+import com.org.motadata.utils.PluginExecutorUtil;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
@@ -27,7 +28,7 @@ public class DiscoveryEngine extends AbstractVerticle
             {
                 try
                 {
-                    var discoveryResultContext = CommonUtil.executePlugin(jsonArrayMessage.body()).getJsonObject(0);
+                    var discoveryResultContext = PluginExecutorUtil.executePlugin(jsonArrayMessage.body()).getJsonObject(0);
 
                     var discoveryId = discoveryResultContext.getString(Constants.DISCOVERY_ID);
 

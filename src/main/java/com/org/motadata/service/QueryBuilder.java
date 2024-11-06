@@ -1,8 +1,8 @@
-package com.org.motadata.services;
+package com.org.motadata.service;
 
 import com.org.motadata.Bootstrap;
 import com.org.motadata.utils.CommonUtil;
-import com.org.motadata.utils.Constants;
+import com.org.motadata.constant.Constants;
 import com.org.motadata.utils.LoggerUtil;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.json.JsonObject;
@@ -16,9 +16,9 @@ import java.util.stream.Collectors;
  * Author: Harsh Mehta
  * Date: 10/31/24 1:15 AM
  */
-public class QueryBuilderServices extends AbstractVerticle
+public class QueryBuilder extends AbstractVerticle
 {
-    private static final LoggerUtil LOGGER = new LoggerUtil(QueryBuilderServices.class);
+    private static final LoggerUtil LOGGER = new LoggerUtil(QueryBuilder.class);
 
     @Override
     public void start()
