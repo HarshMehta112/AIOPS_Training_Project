@@ -16,6 +16,22 @@ import io.vertx.ext.web.handler.BodyHandler;
  * Author: Harsh Mehta
  * Date: 10/29/24 1:52 PM
  */
+
+
+/**
+ * This class handles the all requests from the http server.
+ *
+ * I wirte logic that, all request (/*) doing authenticate using JWT first the
+ * reroute to according to the request.
+ *
+ * At a login time it will generate 2 tokens 1. access token 2. refresh token
+ * for this project my refresh token validity = service start to stop time.
+ * access token validity = 30 seconds
+ *
+ * I write logic that, if any request arrives and token is expired
+ * then automatically new access token generated.
+ * */
+
 public class ApiServer extends AbstractVerticle
 {
     private static final LoggerUtil LOGGER = new LoggerUtil(ConfigLoaderUtil.class);

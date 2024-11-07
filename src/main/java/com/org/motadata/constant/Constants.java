@@ -101,6 +101,8 @@ public class Constants
 
     public static final String QUERY = "query";
 
+    public static final String PLUGIN_PATH = "/home/harsh/GolandProjects/AIOPS_Training_Project/AIOPS_Training_Project";
+
     public static final String ROUTING_KEY = "RoutingKey";
 
     public static final String CREDENTIAL_PROFILE_TABLE = "tbl_credentials";

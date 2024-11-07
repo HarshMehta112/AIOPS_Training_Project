@@ -22,11 +22,18 @@ import java.util.Random;
  * Author: Harsh Mehta
  * Date: 11/4/24 10:21 AM
  */
+
+/**
+ * For metric polling I implemented config logic and storing into one hashmap of monitorId=consumerName
+ *
+ * to do that after processing db data (select * from tbl_monitor) it will create consumerName = JsonArray of monitor Ids
+ *
+ * and send to particular consumer.
+ * */
+
 public class PollingRouter extends AbstractVerticle
 {
     private static final LoggerUtil LOGGER = new LoggerUtil(CommonUtil.class);
-
-    // update when credential profile updated. //TODO
 
     private static final Map<Integer,String> monitorIdToConsumer = new HashMap<>();
 
@@ -143,6 +150,10 @@ public class PollingRouter extends AbstractVerticle
                         Bootstrap.getVertx().eventBus().send(entry.getKey(), entry.getValue());
                     }
 
+                    LOGGER.info(consumerAddressToDevices.toString());
+
+                    LOGGER.info(monitorIdToConsumer.toString());
+
                     //clear the map to reduce memory
                     consumerAddressToDevices.clear();
 
@@ -165,7 +176,8 @@ public class PollingRouter extends AbstractVerticle
 
     private String assignConsumerForMonitorId()
     {
-        int consumerIndex = new Random().nextInt(ConfigLoaderUtil.getMetricPollingBatchSize()) + 1;
+        // we can our own load balancing logic if needed
+        int consumerIndex = new Random().nextInt(ConfigLoaderUtil.getMetricPollingInstances()) + 1;
 
         return "consumer-" + consumerIndex;
     }

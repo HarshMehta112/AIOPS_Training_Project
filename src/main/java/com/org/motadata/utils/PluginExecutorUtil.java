@@ -56,7 +56,7 @@ public class PluginExecutorUtil
 
         try
         {
-            ProcessBuilder processBuilder = new ProcessBuilder("/home/harsh/GolandProjects/AIOPS_Training_Project/AIOPS_Training_Project", dataEncoder);
+            ProcessBuilder processBuilder = new ProcessBuilder(Constants.PLUGIN_PATH, dataEncoder);
 
             process = processBuilder.start();
 

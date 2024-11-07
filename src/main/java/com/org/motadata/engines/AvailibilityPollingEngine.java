@@ -15,6 +15,18 @@ import io.vertx.core.json.JsonObject;
  * Author: Harsh Mehta
  * Date: 10/29/24 1:53 PM
  */
+
+
+/**
+ * This class have logic availibility polling of devices.
+ *
+ * I made logic that get the all devices from db (select * from tbl_monitor), and after dividing
+ * into batches (size of batch is configurable through properties file) and spawning go process
+ *
+ * I write a logic that getting result from go is one by one not in bulk,
+ * adding in array and doing bulk insert operation.
+ * */
+
 public class AvailibilityPollingEngine extends AbstractVerticle
 {
     private static final LoggerUtil LOGGER = new LoggerUtil(AvailibilityPollingEngine.class);

@@ -29,7 +29,7 @@ public class PollingTrigger extends AbstractVerticle
 
         var updatedScheduleTime = new HashMap<>(scheduleTime);
 
-        Bootstrap.getVertx().setPeriodic(6*1000, handler->
+        Bootstrap.getVertx().setPeriodic(6000, handler->
         {
             try
             {
@@ -37,7 +37,7 @@ public class PollingTrigger extends AbstractVerticle
                 {
                     var time = entry.getValue();
 
-                    time = time - 60000;
+                    time = time - 6000;
 
                     if(time<=0)
                     {

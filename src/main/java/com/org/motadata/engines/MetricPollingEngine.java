@@ -20,6 +20,22 @@ import java.util.HashMap;
  * Author: Harsh Mehta
  * Date: 10/29/24 1:53 PM
  */
+
+/**
+ * This class have a logic that when metric poll request received with monitorIds
+ *
+ * if monitor id present in credentialContext then no need to do the db
+ * call for that particular device in db for credential profile.
+ *
+ * if not present then made a query and get data from db and put it into credentialContext
+ *
+ * and after dividing into batches (size of batch is configurable
+ * through properties file) and spawning go process
+ *
+ * I write a logic that getting result from go is one by one not in bulk,
+ * adding in array and doing bulk insert operation.
+ * */
+
 public class MetricPollingEngine extends AbstractVerticle
 {
     private static final LoggerUtil LOGGER = new LoggerUtil(MetricPollingEngine.class);

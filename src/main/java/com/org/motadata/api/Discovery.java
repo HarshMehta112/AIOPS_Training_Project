@@ -18,6 +18,14 @@ import io.vertx.ext.web.RoutingContext;
  * Author: Harsh Mehta
  * Date: 10/29/24 1:54 PM
  */
+
+
+/**
+ * This class have logic for crud operations of discovery profile.
+ *
+ * I also added api for provision and discovery run here.
+ * */
+
 public class Discovery implements InitializeRouter, CrudOperations
 {
     private static final LoggerUtil LOGGER = new LoggerUtil(Discovery.class);
@@ -203,7 +211,7 @@ public class Discovery implements InitializeRouter, CrudOperations
                             {
                                 routingContext.response()
                                         .putHeader(Constants.CONTENT_TYPE, Constants.CONTENT_TYPE_TEXT_PLAIN)
-                                        .end(Boolean.TRUE.equals(reply.result().body())?"Success":"fail");
+                                        .end(Boolean.TRUE.equals(reply.result().body())?"Discovery Success":"Discovery fail");
                             }
                         });
                     }
