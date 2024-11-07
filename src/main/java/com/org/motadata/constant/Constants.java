@@ -101,6 +101,8 @@ public class Constants
 
     public static final String QUERY = "query";
 
+    public static final String ROUTING_KEY = "RoutingKey";
+
     public static final String CREDENTIAL_PROFILE_TABLE = "tbl_credentials";
 
     public static final String DISCOVERY_PROFILE_TABLE = "tbl_discoveries";

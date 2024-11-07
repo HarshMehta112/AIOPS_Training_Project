@@ -1,6 +1,7 @@
 package com.org.motadata.utils;
 
 import com.org.motadata.Bootstrap;
+import com.org.motadata.constant.Constants;
 import io.vertx.core.*;
 import io.vertx.core.json.JsonObject;
 
@@ -45,7 +46,7 @@ public class VerticleDeployUtil
         {
             // Create a configuration for each instance of the verticle
             JsonObject config = new JsonObject()
-                    .put("RoutingKey", routingKey + index);  // Unique consumer ID
+                    .put(Constants.ROUTING_KEY, routingKey + index);  // Unique consumer ID
 
             DeploymentOptions options = new DeploymentOptions().setConfig(config).setWorkerPoolSize(noOfWorkers);
 

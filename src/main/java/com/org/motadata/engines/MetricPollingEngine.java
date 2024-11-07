@@ -29,7 +29,7 @@ public class MetricPollingEngine extends AbstractVerticle
     @Override
     public void start()
     {
-        String consumerId = config().getString("RoutingKey");
+        String consumerId = config().getString(Constants.ROUTING_KEY);
 
         vertx.eventBus().<ArrayList<Integer>>localConsumer(consumerId, metricPollRequest ->
         {
