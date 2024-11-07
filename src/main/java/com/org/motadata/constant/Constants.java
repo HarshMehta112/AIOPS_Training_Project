@@ -107,6 +107,8 @@ public class Constants
 
     public static final String MONITOR_TABLE = "tbl_monitor";
 
+    public static final String METRIC_TABLE = "tbl_metric";
+
     public static final String ENCRYPTION_ALGORITHM = "AES";
 
     public static final String ENCRYPTION_KEY = "AIOPSTrainingProject@123";
@@ -132,6 +134,8 @@ public class Constants
     public static final String AVAILIBILITY_POLLING_TIME = "availibility_poll_time";
 
     public static final String METRIC_POLLING_TIME = "metric_poll_time";
+
+    public static final String METRIC_GET_QUERY = "SELECT DISTINCT ON (metric_name) metric_name, metric_value, event_time FROM tbl_metric WHERE id = ### ORDER BY metric_name, event_time DESC;";
 
     public static final String RUN_DISCOVERY_DATA_QUERY = "\n" +
             "SELECT d.id AS discovery_id, d.ip_address, d.port, c.ssh_username, c.ssh_password FROM tbl_discoveries d JOIN tbl_credentials c ON d.credential_profile_id = c.id WHERE d.id = "+ "###" +";";

@@ -29,6 +29,8 @@ public class ApiServer extends AbstractVerticle
 
         var credentialProfileRouter = Router.router(Bootstrap.getVertx());
 
+        var monitorRouter = Router.router(Bootstrap.getVertx());
+
         var bodyHandler = BodyHandler.create().setBodyLimit(10000000000L);
 
         // Public login route
@@ -41,9 +43,13 @@ public class ApiServer extends AbstractVerticle
 
         apiRouter.route("/credentialProfile/*").handler(bodyHandler).subRouter(credentialProfileRouter);
 
+        apiRouter.route("/monitor/*").handler(bodyHandler).subRouter(monitorRouter);
+
         new Discovery().initRouter(discoveryRouter);
 
         new CredentialProfile().initRouter(credentialProfileRouter);
+
+        new Monitor().initRouter(monitorRouter);
 
         // Start HTTP server
         Bootstrap.getVertx().createHttpServer(new HttpServerOptions()
