@@ -3,6 +3,7 @@ package com.org.motadata.engines;
 import com.org.motadata.Bootstrap;
 import com.org.motadata.utils.CommonUtil;
 import com.org.motadata.constant.Constants;
+import com.org.motadata.utils.ConfigLoaderUtil;
 import com.org.motadata.utils.LoggerUtil;
 import com.org.motadata.utils.PluginExecutorUtil;
 import io.vertx.core.AbstractVerticle;
@@ -37,7 +38,8 @@ public class AvailibilityPollingEngine extends AbstractVerticle
     {
         while (pollRequestContext.size() > 0)
         {
-            var batch = CommonUtil.getBatchedData(pollRequestContext);
+            var batch = CommonUtil.getBatchedData(pollRequestContext,
+                    ConfigLoaderUtil.getAvailibilityPollingBatchSize());
 
             Bootstrap.getVertx().executeBlocking(promise ->
             {

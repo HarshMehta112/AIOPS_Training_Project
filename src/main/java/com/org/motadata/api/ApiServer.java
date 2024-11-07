@@ -29,7 +29,7 @@ public class ApiServer extends AbstractVerticle
 
         var credentialProfileRouter = Router.router(Bootstrap.getVertx());
 
-        var bodyHandler = BodyHandler.create().setBodyLimit(100000000000000L);
+        var bodyHandler = BodyHandler.create().setBodyLimit(10000000000L);
 
         // Public login route
         apiRouter.post("/login").handler(AuthenticationUtil::loginHandler);
@@ -49,7 +49,7 @@ public class ApiServer extends AbstractVerticle
         Bootstrap.getVertx().createHttpServer(new HttpServerOptions()
                 .setSsl(true).setKeyCertOptions(new JksOptions().setPath(ConfigLoaderUtil.getSslKeystorePath())
                         .setPassword(ConfigLoaderUtil.getSslKeystorePassword())))
-                .requestHandler(apiRouter).listen(8443)
+                .requestHandler(apiRouter).listen(ConfigLoaderUtil.getHttpServerPort())
                 .onComplete(asyncResult->
         {
             if(asyncResult.succeeded())

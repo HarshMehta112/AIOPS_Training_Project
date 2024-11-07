@@ -3,6 +3,7 @@ package com.org.motadata.service;
 import com.org.motadata.Bootstrap;
 import com.org.motadata.utils.CommonUtil;
 import com.org.motadata.constant.Constants;
+import com.org.motadata.utils.ConfigLoaderUtil;
 import com.org.motadata.utils.HandleRequestUtil;
 import com.org.motadata.utils.LoggerUtil;
 import io.vertx.core.AbstractVerticle;
@@ -34,10 +35,6 @@ public class PollingRouter extends AbstractVerticle
     @Override
     public void start()
     {
-        //TODO harsh flow
-        // get all devices -- if availibility polling send to AvailibilityPollingEngine
-        // otherwise put the monitor id to verticle instance id
-
         Bootstrap.getVertx().eventBus().<String>localConsumer(Constants.POLLING_REQUESTS, pollRequest ->
         {
             var pollRequestType = pollRequest.body();
@@ -132,7 +129,8 @@ public class PollingRouter extends AbstractVerticle
                         var monitorId = devicesContext.getJsonObject(index).getInteger(Constants.ID);
 
                         // If ID is already mapped to a consumer, route to the same consumer
-                        consumerAddress = monitorIdToConsumer.computeIfAbsent(monitorId, logic -> assignConsumerForMonitorId());
+                        consumerAddress = monitorIdToConsumer.computeIfAbsent(monitorId,
+                                logic -> assignConsumerForMonitorId());
 
                         var deviceArray = consumerAddressToDevices.
                                 computeIfAbsent(consumerAddress, value -> new ArrayList<>());
@@ -167,7 +165,7 @@ public class PollingRouter extends AbstractVerticle
 
     private String assignConsumerForMonitorId()
     {
-        int consumerIndex = new Random().nextInt(2) + 1; //0 1 2 //todo harsh read from config
+        int consumerIndex = new Random().nextInt(ConfigLoaderUtil.getMetricPollingBatchSize()) + 1;
 
         return "consumer-" + consumerIndex;
     }

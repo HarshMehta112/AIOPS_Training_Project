@@ -1,6 +1,7 @@
 package com.org.motadata.database;
 
 import com.org.motadata.constant.Constants;
+import com.org.motadata.utils.CommonUtil;
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Future;
 import io.vertx.core.Handler;
@@ -35,7 +36,7 @@ public class DatabaseServiceImpl implements DatabaseService
 
         Tuple tuple = Tuple.tuple();
 
-        if (params != null)
+        if (CommonUtil.isNonNull.test(params))
         {
             params.forEach(entry -> tuple.addValue(entry.getValue()));
         }

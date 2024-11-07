@@ -9,10 +9,14 @@ import com.org.motadata.service.PollingRouter;
 import com.org.motadata.service.PollingTrigger;
 import com.org.motadata.service.QueryBuilder;
 import com.org.motadata.api.ApiServer;
-import io.vertx.core.DeploymentOptions;
-import io.vertx.core.ThreadingModel;
-import io.vertx.core.Vertx;
-import io.vertx.core.json.JsonObject;
+import com.org.motadata.utils.ConfigLoaderUtil;
+import com.org.motadata.utils.LoggerUtil;
+import com.org.motadata.utils.VerticleDeployUtil;
+import io.vertx.core.*;
+
+import java.time.Duration;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Description:
@@ -21,45 +25,76 @@ import io.vertx.core.json.JsonObject;
  */
 public class Bootstrap
 {
-    private static final Vertx VERTX = Vertx.vertx();
+    private static final LoggerUtil LOGGER = new LoggerUtil(Bootstrap.class);
+
+    private static final Vertx VERTX = Vertx.vertx(new VertxOptions()
+            .setEventLoopPoolSize(ConfigLoaderUtil.getEventLoopWorker())
+            .setWorkerPoolSize(ConfigLoaderUtil.getWorkerPoolHelper())
+            .setMaxWorkerExecuteTime(Duration.ofSeconds(60).toNanos())
+            .setWarningExceptionTime(Duration.ofSeconds(60).toNanos()));
 
     public static Vertx getVertx()
     {
         return VERTX;
     }
 
+    private static final List<Future> deployments = new ArrayList<>();
+
     public static void main(String[] args)
     {
-        VERTX.deployVerticle(DatabaseServiceProvider.class.getName());
-
-        //TODO HARSH READ FROM CONFIG WORKER POOL SIZE
-
-        VERTX.deployVerticle(DatabaseEngine.class.getName(),
-                new DeploymentOptions().setThreadingModel(ThreadingModel.WORKER).setWorkerPoolSize(5));
-
-        VERTX.deployVerticle(ApiServer.class.getName());
-
-        VERTX.deployVerticle(QueryBuilder.class.getName(),
-                new DeploymentOptions().setThreadingModel(ThreadingModel.WORKER).setWorkerPoolSize(2));
-
-        VERTX.deployVerticle(DiscoveryEngine.class.getName(),
-                new DeploymentOptions().setThreadingModel(ThreadingModel.WORKER).setWorkerPoolSize(2));
-
-        VERTX.deployVerticle(PollingTrigger.class.getName());
-
-        VERTX.deployVerticle(PollingRouter.class.getName(), new DeploymentOptions().setThreadingModel(ThreadingModel.WORKER).setWorkerPoolSize(20));
-        VERTX.deployVerticle(AvailibilityPollingEngine.class.getName(), new DeploymentOptions().setThreadingModel(ThreadingModel.WORKER).setWorkerPoolSize(20));
-
-
-        for (int index = 1; index <= 2; index++)
+        ConfigLoaderUtil.init().onComplete(booleanAsyncResult ->
         {
-            JsonObject config = new JsonObject()
-                    .put("RoutingKey", "consumer-" + index);  // Unique consumer ID
+            if(Boolean.TRUE.equals(booleanAsyncResult.result()))
+            {
+                deployments.add(VERTX.deployVerticle(DatabaseServiceProvider.class.getName()));
 
-            DeploymentOptions options = new DeploymentOptions().setConfig(config);
+                deployments.add(VERTX.deployVerticle(DatabaseEngine.class.getName(),
+                        new DeploymentOptions().setWorkerPoolSize(ConfigLoaderUtil.getDbWorker())));
 
-            VERTX.deployVerticle(MetricPollingEngine.class.getName(), options);
-        }
+                deployments.add(VERTX.deployVerticle(ApiServer.class.getName()));
 
+                deployments.add(VERTX.deployVerticle(QueryBuilder.class.getName(),
+                        new DeploymentOptions().setWorkerPoolSize(ConfigLoaderUtil.getQueryBuilderWorker())));
+
+                deployments.add(VERTX.deployVerticle(DiscoveryEngine.class.getName(),
+                        new DeploymentOptions().setWorkerPoolSize(ConfigLoaderUtil.getDiscoveryWorker())));
+
+                deployments.add(VERTX.deployVerticle(PollingTrigger.class.getName()));
+
+                deployments.add(VERTX.deployVerticle(PollingRouter.class.getName(),
+                        new DeploymentOptions().setWorkerPoolSize(ConfigLoaderUtil.getPollingRouterWorker())));
+
+                deployments.add(VERTX.deployVerticle(AvailibilityPollingEngine.class.getName(),
+                        new DeploymentOptions().setWorkerPoolSize(ConfigLoaderUtil.getAvailibilityPollingWorker())));
+
+                Future<CompositeFuture> metricPollingEngineDeployment = new VerticleDeployUtil(VERTX,
+                        "consumer-", MetricPollingEngine.class.getName(),ConfigLoaderUtil.getMetricPollingInstances()
+                        ,ConfigLoaderUtil.getMetricPollingWorker()).deploy();
+
+                deployments.add(metricPollingEngineDeployment);
+
+                // Create a CompositeFuture that combines all the deployment futures
+                CompositeFuture.all(deployments).onComplete(asyncResult ->
+                {
+                    if (asyncResult.succeeded())
+                    {
+                        LOGGER.info("All verticles deployed successfully.");
+                    }
+                    else
+                    {
+                        LOGGER.error("Some deployments failed: " + asyncResult.cause(),asyncResult.cause().getStackTrace());
+
+                        VERTX.close();
+                    }
+                });
+            }
+            else
+            {
+                LOGGER.error("Some issue occurred in configurations loading.." + booleanAsyncResult.cause()
+                        ,booleanAsyncResult.cause().getStackTrace());
+
+                VERTX.close();
+            }
+        });
     }
 }

@@ -1,6 +1,8 @@
 package com.org.motadata.flyway;
 
 import com.org.motadata.constant.Constants;
+import com.org.motadata.utils.CommonUtil;
+import com.org.motadata.utils.ConfigLoaderUtil;
 import com.org.motadata.utils.LoggerUtil;
 import io.vertx.core.Future;
 import io.vertx.core.Promise;
@@ -24,7 +26,9 @@ public class FlywayExecutor
         try
         {
             var flyway = Flyway.configure()
-                    .dataSource("jdbc:postgresql://localhost:5432/postgres", "harsh", "Mind@123")
+                    .dataSource(CommonUtil.buildString("jdbc:postgresql://",ConfigLoaderUtil.getDbHost(),":",
+                                    String.valueOf(ConfigLoaderUtil.getDbPort()),"/",ConfigLoaderUtil.getDbName()),
+                            ConfigLoaderUtil.getDbUsername(), ConfigLoaderUtil.getDbPassword())
                     .locations("filesystem:"+ Constants.RESOURCES_PATH +"/db.migration/")
                     .schemas("public")
                     .load();

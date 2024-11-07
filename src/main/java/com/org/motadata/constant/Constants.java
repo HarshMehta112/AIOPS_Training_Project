@@ -151,4 +151,32 @@ public class Constants
     public static final String DB_PASSWORD = "dbPassword";
 
     public static final String DB_MAX_CONNECTIONS = "dbMaxConnections";
+
+    public static final String HTTP_PORT = "HttpServerPort";
+
+    public static final String DB_SSL_CERT_PATH = "/etc/postgresql/ssl/postgresql.crt";
+
+    public static final String DB_WORKERS = "dbWorker";
+
+    public static final String QUERY_BUILDER_WORKER = "queryBuilderWorker";
+
+    public static final String DISCOVERY_WORKER = "discoveryWorker";
+
+    public static final String POLLING_ROUTER_WORKER = "pollingRouterWorker";
+
+    public static final String AVAILIBILITY_POLLING_WORKER = "availibilityPollingWorker";
+
+    public static final String METRIC_POLLING_WORKER = "metricPollingWorker";
+
+    public static final String METRIC_POLLING_INSTANCES = "metricPollingInstances";
+
+    public static final String AVAILIBILITY_POLLING_BATCH = "availibilityPollingBatchSize";
+
+    public static final String METRIC_POLLING_BATCH = "metricPollingBatchSize";
+
+    public static final String EVENTLOOP_POOL_SIZE = "eventloopPoolSize";
+
+    public static final String WORKER_POOL_SIZE = "workerPoolSize";
+
+    public static final String HASH_SEPARATOR = "###";
 }

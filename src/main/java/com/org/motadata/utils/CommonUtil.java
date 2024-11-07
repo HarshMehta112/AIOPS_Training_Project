@@ -35,11 +35,11 @@ public class CommonUtil
 
     public static final Predicate<Object> isNonNull = Objects::nonNull;
 
-    public static JsonArray getBatchedData(JsonArray context)
+    public static JsonArray getBatchedData(JsonArray context, int batchSize)
     {
         var batch = new JsonArray();
 
-        int maxBatchSize = Math.min(2, context.size());
+        int maxBatchSize = Math.min(batchSize, context.size());
 
         for (int index = 0; index < maxBatchSize; index++)
         {

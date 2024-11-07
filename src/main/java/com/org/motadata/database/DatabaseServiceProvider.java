@@ -7,9 +7,12 @@ package com.org.motadata.database;
  */
 
 import com.org.motadata.Bootstrap;
+import com.org.motadata.constant.Constants;
 import com.org.motadata.utils.ConfigLoaderUtil;
 import com.org.motadata.utils.LoggerUtil;
 import io.vertx.core.AbstractVerticle;
+import io.vertx.core.net.PemTrustOptions;
+import io.vertx.pgclient.SslMode;
 import io.vertx.serviceproxy.ServiceBinder;
 import io.vertx.sqlclient.Pool;
 import io.vertx.sqlclient.PoolOptions;
@@ -27,7 +30,10 @@ public class DatabaseServiceProvider extends AbstractVerticle {
             .setDatabase(ConfigLoaderUtil.getDbName())
             .setUser(ConfigLoaderUtil.getDbUsername())
             .setPassword(ConfigLoaderUtil.getDbPassword())
-            .setReconnectAttempts(3).setReconnectInterval(2000L);
+            .setReconnectAttempts(3).setReconnectInterval(2000L)
+            .setSsl(true).setSslMode(SslMode.REQUIRE)
+            .setPemTrustOptions(new PemTrustOptions()
+                    .addCertPath(Constants.DB_SSL_CERT_PATH));
 
     // Pool options
     private static final PoolOptions POOL_OPTIONS = new PoolOptions()

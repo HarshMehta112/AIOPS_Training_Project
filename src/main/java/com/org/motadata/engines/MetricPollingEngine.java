@@ -3,6 +3,7 @@ package com.org.motadata.engines;
 import com.org.motadata.Bootstrap;
 import com.org.motadata.utils.CommonUtil;
 import com.org.motadata.constant.Constants;
+import com.org.motadata.utils.ConfigLoaderUtil;
 import com.org.motadata.utils.LoggerUtil;
 import com.org.motadata.utils.PluginExecutorUtil;
 import io.vertx.core.AbstractVerticle;
@@ -67,7 +68,7 @@ public class MetricPollingEngine extends AbstractVerticle
                 var queryBuildContext = new JsonObject();
 
                 queryBuildContext.put(Constants.DB_OPERATION_TYPE, Constants.SELECT_OPERATION)
-                        .put(Constants.QUERY,Constants.METRIC_POLLING_DATA_QUERY.replace("###",condition));
+                        .put(Constants.QUERY,Constants.METRIC_POLLING_DATA_QUERY.replace(Constants.HASH_SEPARATOR,condition));
 
                 Bootstrap.getVertx().eventBus().<JsonArray>request(Constants.DB_REQUESTS, queryBuildContext, dbOperationReply ->
                 {
@@ -106,7 +107,8 @@ public class MetricPollingEngine extends AbstractVerticle
 
                 while (pollingContext.size() > 0)
                 {
-                    var batch = CommonUtil.getBatchedData(pollingContext);
+                    var batch = CommonUtil.getBatchedData(pollingContext,
+                            ConfigLoaderUtil.getMetricPollingBatchSize());
 
                     Bootstrap.getVertx().executeBlocking(promise ->
                     {

@@ -175,7 +175,7 @@ public class Discovery implements InitializeRouter, CrudOperations
             var dbRequestContext = new JsonObject();
 
             dbRequestContext.put(Constants.DB_OPERATION_TYPE,Constants.SELECT_OPERATION)
-                    .put(Constants.QUERY,Constants.RUN_DISCOVERY_DATA_QUERY.replace("###",discoveryId));
+                    .put(Constants.QUERY,Constants.RUN_DISCOVERY_DATA_QUERY.replace(Constants.HASH_SEPARATOR,discoveryId));
 
             Bootstrap.getVertx().eventBus().<JsonArray>request(Constants.DB_REQUESTS, dbRequestContext, dbOperationReply ->
             {
@@ -231,7 +231,8 @@ public class Discovery implements InitializeRouter, CrudOperations
 
             var discoveryId = routingContext.request().getParam(Constants.ID);
 
-            dbOperationContext.put(Constants.QUERY,Constants.DISCOVERY_PROVISION_SP.replace("###",discoveryId));
+            dbOperationContext.put(Constants.QUERY,Constants.DISCOVERY_PROVISION_SP.
+                    replace(Constants.HASH_SEPARATOR,discoveryId));
 
             dbOperationContext.put(Constants.DB_OPERATION_TYPE,Constants.SP_CALL);
 

@@ -4,13 +4,13 @@ import com.org.motadata.Bootstrap;
 import com.org.motadata.constant.Constants;
 import com.org.motadata.database.DatabaseService;
 import com.org.motadata.flyway.FlywayExecutor;
+import io.vertx.core.Future;
+import io.vertx.core.Promise;
 import io.vertx.ext.auth.PubSecKeyOptions;
 import io.vertx.ext.auth.jwt.JWTAuth;
 import io.vertx.ext.auth.jwt.JWTAuthOptions;
-
 import java.io.FileInputStream;
 import java.util.Properties;
-import java.util.logging.Level;
 
 /**
  * Description:
@@ -31,6 +31,96 @@ public class ConfigLoaderUtil
     private static long availibilityPollTime;
 
     private static long metricPollTime;
+
+    private static int dbWorker;
+
+    private static int queryBuilderWorker;
+
+    private static int discoveryWorker;
+
+    private static int pollingRouterWorker;
+
+    private static int availibilityPollingWorker;
+
+    private static int metricPollingWorker;
+
+    private static int availibilityPollingBatchSize;
+
+    private static int metricPollingBatchSize;
+
+    private static int metricPollingInstances;
+
+    public static int getMetricPollingInstances() {
+        return metricPollingInstances;
+    }
+
+    public static void setMetricPollingInstances(int metricPollingInstances) {
+        ConfigLoaderUtil.metricPollingInstances = metricPollingInstances;
+    }
+
+    public static int getDbWorker() {
+        return dbWorker;
+    }
+
+    public static void setDbWorker(int dbWorker) {
+        ConfigLoaderUtil.dbWorker = dbWorker;
+    }
+
+    public static int getQueryBuilderWorker() {
+        return queryBuilderWorker;
+    }
+
+    public static void setQueryBuilderWorker(int queryBuilderWorker) {
+        ConfigLoaderUtil.queryBuilderWorker = queryBuilderWorker;
+    }
+
+    public static int getDiscoveryWorker() {
+        return discoveryWorker;
+    }
+
+    public static void setDiscoveryWorker(int discoveryWorker) {
+        ConfigLoaderUtil.discoveryWorker = discoveryWorker;
+    }
+
+    public static int getPollingRouterWorker() {
+        return pollingRouterWorker;
+    }
+
+    public static void setPollingRouterWorker(int pollingRouterWorker) {
+        ConfigLoaderUtil.pollingRouterWorker = pollingRouterWorker;
+    }
+
+    public static int getAvailibilityPollingWorker() {
+        return availibilityPollingWorker;
+    }
+
+    public static void setAvailibilityPollingWorker(int availibilityPollingWorker) {
+        ConfigLoaderUtil.availibilityPollingWorker = availibilityPollingWorker;
+    }
+
+    public static int getMetricPollingWorker() {
+        return metricPollingWorker;
+    }
+
+    public static void setMetricPollingWorker(int metricPollingWorker) {
+        ConfigLoaderUtil.metricPollingWorker = metricPollingWorker;
+    }
+
+    public static int getAvailibilityPollingBatchSize() {
+        return availibilityPollingBatchSize;
+    }
+
+    public static void setAvailibilityPollingBatchSize(int availibilityPollingBatchSize) {
+        ConfigLoaderUtil.availibilityPollingBatchSize = availibilityPollingBatchSize;
+    }
+
+    public static int getMetricPollingBatchSize() {
+        return metricPollingBatchSize;
+    }
+
+    public static void setMetricPollingBatchSize(int metricPollingBatchSize) {
+        ConfigLoaderUtil.metricPollingBatchSize = metricPollingBatchSize;
+    }
 
     public static long getAvailibilityPollTime() {
         return availibilityPollTime;
@@ -80,6 +170,26 @@ public class ConfigLoaderUtil
 
     private static String dbName;
 
+    private static int workerPoolHelper = 16;
+
+    private static int eventLoopWorker = 8;
+
+    public static int getWorkerPoolHelper() {
+        return workerPoolHelper;
+    }
+
+    public static void setWorkerPoolHelper(int workerPoolWorker) {
+        ConfigLoaderUtil.workerPoolHelper = workerPoolWorker;
+    }
+
+    public static int getEventLoopWorker() {
+        return eventLoopWorker;
+    }
+
+    public static void setEventLoopWorker(int eventLoopWorker) {
+        ConfigLoaderUtil.eventLoopWorker = eventLoopWorker;
+    }
+
     public static String getDbHost() {
         return dbHost;
     }
@@ -128,6 +238,16 @@ public class ConfigLoaderUtil
 
     private static int dbMaxConnections;
 
+    private static int httpServerPort;
+
+    public static int getHttpServerPort() {
+        return httpServerPort;
+    }
+
+    public static void setHttpServerPort(int httpServerPort) {
+        ConfigLoaderUtil.httpServerPort = httpServerPort;
+    }
+
     private ConfigLoaderUtil() {}
 
     public static String getLoginUsername() {
@@ -162,13 +282,11 @@ public class ConfigLoaderUtil
         ConfigLoaderUtil.jwtAuth = jwtAuth;
     }
 
-    static
-    {
-        init();
-    }
 
-    private static void init()
+    public static Future<Boolean> init()
     {
+        Promise<Boolean> promise = Promise.promise();
+
         // Load properties file
         var properties = new Properties();
 
@@ -186,35 +304,12 @@ public class ConfigLoaderUtil
 
             setSslKeystorePassword(properties.getProperty(Constants.SSL_KEYSTORE_PASSWORD));
 
-            // Get paths for public and private keys
-            var publicKeyPath = properties.getProperty("publicKeyPath");
+            setHttpServerPort(Integer.parseInt(properties.getProperty(Constants.HTTP_PORT)));
 
-            var privateKeyPath = properties.getProperty("privateKeyPath");
+            setUpJWTAuth(properties);
 
-            if (!(CommonUtil.isNonNull.test(privateKeyPath)
-                    || CommonUtil.isNonNull.test(publicKeyPath)))
-            {
-                LOGGER.warn("Key paths are not set in config.properties");
-
-                return;
-            }
-
-            // Load the public and private key buffers
-            var publicKeyBuffer = Bootstrap.getVertx().fileSystem().readFileBlocking(publicKeyPath);
-
-            var privateKeyBuffer = Bootstrap.getVertx().fileSystem().readFileBlocking(privateKeyPath);
-
-            // Configure JWT authentication with public and private keys
-            jwtAuth = JWTAuth.create(Bootstrap.getVertx(), new JWTAuthOptions()
-                    .addPubSecKey(new PubSecKeyOptions()
-                            .setAlgorithm(Constants.JWT_TOKEN_ALGORITHM).setBuffer(publicKeyBuffer))
-                    .addPubSecKey(new PubSecKeyOptions()
-                            .setAlgorithm(Constants.JWT_TOKEN_ALGORITHM).setBuffer(privateKeyBuffer))
-            );
-
-            setJwtAuth(jwtAuth);
-
-            DatabaseService databaseServiceProxy = DatabaseService.createProxy(Bootstrap.getVertx(), "database.service.address");
+            DatabaseService databaseServiceProxy = DatabaseService.createProxy(Bootstrap.getVertx(),
+                    "database.service.address");
 
             setDatabaseServiceProxy(databaseServiceProxy);
 
@@ -236,9 +331,40 @@ public class ConfigLoaderUtil
 
             setDbMaxConnections(Integer.parseInt(properties.getProperty(Constants.DB_MAX_CONNECTIONS)));
 
-            FlywayExecutor.executeDbMigration();
+            setDbWorker(Integer.parseInt(properties.getProperty(Constants.DB_WORKERS)));
 
-            LOGGER.info("configurations loaded and setting up of configurations completed..");
+            setDiscoveryWorker(Integer.parseInt(properties.getProperty(Constants.DISCOVERY_WORKER)));
+
+            setAvailibilityPollingWorker(Integer.parseInt(properties.getProperty(Constants.AVAILIBILITY_POLLING_WORKER)));
+
+            setMetricPollingWorker(Integer.parseInt(properties.getProperty(Constants.METRIC_POLLING_WORKER)));
+
+            setQueryBuilderWorker(Integer.parseInt(properties.getProperty(Constants.QUERY_BUILDER_WORKER)));
+
+            setPollingRouterWorker(Integer.parseInt(properties.getProperty(Constants.POLLING_ROUTER_WORKER)));
+
+            setMetricPollingBatchSize(Integer.parseInt(properties.getProperty(Constants.METRIC_POLLING_BATCH)));
+
+            setAvailibilityPollingBatchSize(Integer.parseInt(properties.getProperty(Constants.AVAILIBILITY_POLLING_BATCH)));
+
+            setMetricPollingInstances(Integer.parseInt(properties.getProperty(Constants.METRIC_POLLING_INSTANCES)));
+
+            FlywayExecutor.executeDbMigration().onComplete(migrator->
+            {
+                if(migrator.succeeded())
+                {
+                    LOGGER.info("configurations loaded and setting up of configurations completed..");
+
+                    promise.complete(true);
+                }
+                else
+                {
+                    LOGGER.error("Some issue occurred in db migration "+
+                            migrator.cause(), migrator.cause().getStackTrace());
+
+                    promise.fail(migrator.cause());
+                }
+            });
 
         }
         catch (Exception exception)
@@ -246,8 +372,44 @@ public class ConfigLoaderUtil
             LOGGER.error(exception.getMessage(),exception.getStackTrace());
 
             LOGGER.warn("Failed to load config.properties");
+
+            promise.fail(exception);
         }
+
+        return promise.future();
     }
+
+    private static void setUpJWTAuth(Properties properties)
+    {
+        // Get paths for public and private keys
+        var publicKeyPath = properties.getProperty("publicKeyPath");
+
+        var privateKeyPath = properties.getProperty("privateKeyPath");
+
+        if (!(CommonUtil.isNonNull.test(privateKeyPath)
+                || CommonUtil.isNonNull.test(publicKeyPath)))
+        {
+            LOGGER.warn("Key paths are not set in config.properties");
+
+            throw new NullPointerException();
+        }
+
+        // Load the public and private key buffers
+        var publicKeyBuffer = Bootstrap.getVertx().fileSystem().readFileBlocking(publicKeyPath);
+
+        var privateKeyBuffer = Bootstrap.getVertx().fileSystem().readFileBlocking(privateKeyPath);
+
+        // Configure JWT authentication with public and private keys
+        jwtAuth = JWTAuth.create(Bootstrap.getVertx(), new JWTAuthOptions()
+                .addPubSecKey(new PubSecKeyOptions()
+                        .setAlgorithm(Constants.JWT_TOKEN_ALGORITHM).setBuffer(publicKeyBuffer))
+                .addPubSecKey(new PubSecKeyOptions()
+                        .setAlgorithm(Constants.JWT_TOKEN_ALGORITHM).setBuffer(privateKeyBuffer))
+        );
+
+        setJwtAuth(jwtAuth);
+    }
+
 
 
 }
