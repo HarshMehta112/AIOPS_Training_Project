@@ -3,7 +3,6 @@ package com.org.motadata.api;
 import com.org.motadata.Bootstrap;
 import com.org.motadata.constant.Constants;
 import com.org.motadata.impl.InitializeRouter;
-import com.org.motadata.utils.HandleRequestUtil;
 import com.org.motadata.utils.LoggerUtil;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;

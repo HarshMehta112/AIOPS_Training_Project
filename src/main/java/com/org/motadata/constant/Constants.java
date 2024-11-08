@@ -47,10 +47,6 @@ public class Constants
 
     public static final String REFRESH_TOKEN = "refreshToken";
 
-    public static final String DEBUG_LOG_FLAG = "debugEnabled";
-
-    public static final String NEW_LINE_SEPARATOR = "\n";
-
     public static final String SSL_KEYSTORE_PATH = "sslKeyStorePath";
 
     public static final String SSL_KEYSTORE_PASSWORD = "sslKeyStorePassword";
@@ -181,10 +177,6 @@ public class Constants
     public static final String AVAILIBILITY_POLLING_BATCH = "availibilityPollingBatchSize";
 
     public static final String METRIC_POLLING_BATCH = "metricPollingBatchSize";
-
-    public static final String EVENTLOOP_POOL_SIZE = "eventloopPoolSize";
-
-    public static final String WORKER_POOL_SIZE = "workerPoolSize";
 
     public static final String HASH_SEPARATOR = "###";
 }

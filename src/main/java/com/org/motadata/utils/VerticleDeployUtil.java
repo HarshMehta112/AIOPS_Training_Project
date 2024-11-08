@@ -15,15 +15,15 @@ import java.util.List;
  */
 public class VerticleDeployUtil
 {
-    private String className;
+    private final String className;
 
-    private int noOfInstances;
+    private final int noOfInstances;
 
-    private Vertx vertx;
+    private final Vertx vertx;
 
-    private String routingKey;
+    private final String routingKey;
 
-    private int noOfWorkers;
+    private final int noOfWorkers;
 
     public VerticleDeployUtil(Vertx vertx,String routingKey, String className, int noOfInstances, int noOfWorkers)
     {

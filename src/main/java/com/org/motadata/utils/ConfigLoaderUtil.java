@@ -178,16 +178,8 @@ public class ConfigLoaderUtil
         return workerPoolHelper;
     }
 
-    public static void setWorkerPoolHelper(int workerPoolWorker) {
-        ConfigLoaderUtil.workerPoolHelper = workerPoolWorker;
-    }
-
     public static int getEventLoopWorker() {
         return eventLoopWorker;
-    }
-
-    public static void setEventLoopWorker(int eventLoopWorker) {
-        ConfigLoaderUtil.eventLoopWorker = eventLoopWorker;
     }
 
     public static String getDbHost() {
