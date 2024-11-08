@@ -1,6 +1,5 @@
 package com.org.motadata.utils;
 
-import com.org.motadata.Bootstrap;
 import com.org.motadata.constant.Constants;
 import io.vertx.core.*;
 import io.vertx.core.json.JsonObject;

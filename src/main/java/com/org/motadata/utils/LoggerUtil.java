@@ -15,7 +15,6 @@ public class LoggerUtil {
 
     private final String className;
     private static Level currentLogLevel = Level.INFO;
-    private static boolean debugEnabled = false;
 
     // Constructor to create a logger for the specific class
     public LoggerUtil(Class<?> clazz)
@@ -30,9 +29,6 @@ public class LoggerUtil {
     public void log(Level level, String message) {
         if (level.intValue() >= currentLogLevel.intValue()) {
             logger.log(level, message);
-        }
-        if (debugEnabled && level == Level.FINE) {
-            logger.log(Level.FINE, message); // Log debug messages if enabled
         }
     }
 
