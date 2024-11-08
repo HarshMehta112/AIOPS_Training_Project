@@ -83,8 +83,6 @@ public class Bootstrap
                 {
                     if (asyncResult.succeeded())
                     {
-                        System.out.println("All deployments completed successfully.");
-
                         for (int index = 0; index < deployments.size(); index++)
                         {
                             if (deployments.get(index).succeeded())
