@@ -244,7 +244,7 @@ public class Discovery implements InitializeRouter, CrudOperations
 
             dbOperationContext.put(Constants.DB_OPERATION_TYPE,Constants.SP_CALL);
 
-            Bootstrap.getVertx().eventBus().<JsonArray>request(Constants.DB_REQUESTS,dbOperationContext,
+            Bootstrap.getVertx().eventBus().<Boolean>request(Constants.DB_REQUESTS,dbOperationContext,
                     dbOperationReply ->
                     {
                         var responseMessage = Boolean.TRUE.equals(dbOperationReply.result().body())
