@@ -1,7 +1,6 @@
 package com.org.motadata.utils;
 
 import java.util.Arrays;
-import java.util.logging.ConsoleHandler;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 

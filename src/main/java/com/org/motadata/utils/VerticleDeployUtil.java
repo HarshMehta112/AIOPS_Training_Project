@@ -5,8 +5,6 @@ import com.org.motadata.constant.Constants;
 import io.vertx.core.*;
 import io.vertx.core.json.JsonObject;
 
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Description:

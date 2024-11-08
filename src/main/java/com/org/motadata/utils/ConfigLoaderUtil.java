@@ -170,9 +170,9 @@ public class ConfigLoaderUtil
 
     private static String dbName;
 
-    private static int workerPoolHelper = 16;
+    private static final int workerPoolHelper = 16;
 
-    private static int eventLoopWorker = 8;
+    private static final int eventLoopWorker = 8;
 
     public static int getWorkerPoolHelper() {
         return workerPoolHelper;
