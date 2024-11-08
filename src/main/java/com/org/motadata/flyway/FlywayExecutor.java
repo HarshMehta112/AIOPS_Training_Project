@@ -16,7 +16,6 @@ import org.flywaydb.core.Flyway;
  */
 public class FlywayExecutor
 {
-    private FlywayExecutor(){}
     private static final LoggerUtil LOGGER = new LoggerUtil(FlywayExecutor.class);
 
     public static Future<Boolean> executeDbMigration()

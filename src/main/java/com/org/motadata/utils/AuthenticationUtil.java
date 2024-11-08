@@ -18,8 +18,6 @@ public class AuthenticationUtil
 {
     private static final LoggerUtil LOGGER = new LoggerUtil(ConfigLoaderUtil.class);
 
-    private AuthenticationUtil() {}
-
     // Add a map to store refresh tokens
     private static final HashMap<String, String> refreshTokenStore = new HashMap<>();
 

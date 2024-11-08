@@ -15,8 +15,6 @@ import java.util.stream.Stream;
  */
 public class CommonUtil
 {
-    private CommonUtil() {}
-
     private static final LoggerUtil LOGGER = new LoggerUtil(CommonUtil.class);
 
     public static String buildString(String ... variableStrings)

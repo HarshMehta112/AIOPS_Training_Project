@@ -240,8 +240,6 @@ public class ConfigLoaderUtil
         ConfigLoaderUtil.httpServerPort = httpServerPort;
     }
 
-    private ConfigLoaderUtil() {}
-
     public static String getLoginUsername() {
         return loginUsername;
     }
