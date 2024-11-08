@@ -191,7 +191,7 @@ public class Discovery implements InitializeRouter, CrudOperations
                 {
                     var deviceData = dbOperationReply.result().body();
 
-                    if (deviceData != null)
+                    if (CommonUtil.isNonNull.test(deviceData) && !deviceData.isEmpty())
                     {
                         var deviceContext = deviceData.getJsonObject(0);
 
@@ -211,7 +211,7 @@ public class Discovery implements InitializeRouter, CrudOperations
                             {
                                 routingContext.response()
                                         .putHeader(Constants.CONTENT_TYPE, Constants.CONTENT_TYPE_TEXT_PLAIN)
-                                        .end(Boolean.TRUE.equals(reply.result().body())?"Discovery Success":"Discovery fail");
+                                        .end("Discovery Result : "+reply.result().body().toString());
                             }
                         });
                     }

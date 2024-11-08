@@ -47,6 +47,8 @@ public class PluginExecutorUtil
             LOGGER.error(exception.getMessage(),exception.getStackTrace());
         }
 
+        LOGGER.info("Go collect result "+batchResult.toString());
+
         return batchResult;
     }
 

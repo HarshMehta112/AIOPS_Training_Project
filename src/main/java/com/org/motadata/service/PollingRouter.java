@@ -46,7 +46,7 @@ public class PollingRouter extends AbstractVerticle
         {
             var pollRequestType = pollRequest.body();
 
-            Bootstrap.getVertx().executeBlocking(promise ->
+            Bootstrap.getVertx().executeBlocking(() ->
             {
                 switch (pollRequestType)
                 {
@@ -57,26 +57,24 @@ public class PollingRouter extends AbstractVerticle
                             if(handler.succeeded())
                             {
                                 Bootstrap.getVertx().eventBus().send(Constants.AVAILIBILITY_POLLING_REQUESTS,handler.result());
-
-                                promise.complete();
                             }
                             else
                             {
-                                promise.fail(handler.cause().getMessage());
+                                LOGGER.error(handler.cause().getMessage(),handler.cause().getStackTrace());
                             }
                         }
                         catch (Exception exception)
                         {
                             LOGGER.error(exception.getMessage(),exception.getStackTrace());
-
-                            promise.fail(exception.getCause());
                         }
                     });
 
-                    case Constants.METRIC_POLLING_TIME -> metricPollRequestHandler(promise);
+                    case Constants.METRIC_POLLING_TIME -> metricPollRequestHandler();
 
                     default -> throw new IllegalArgumentException("Wrong polling request type");
                 }
+
+                return null;
             });
 
         }).exceptionHandler(exception->LOGGER.error(exception.getMessage(), exception.getStackTrace()));
@@ -119,7 +117,7 @@ public class PollingRouter extends AbstractVerticle
     }
 
 
-    private void metricPollRequestHandler(Promise<Object> promise)
+    private void metricPollRequestHandler()
     {
         try
         {
@@ -156,20 +154,16 @@ public class PollingRouter extends AbstractVerticle
 
                     //clear the map to reduce memory
                     consumerAddressToDevices.clear();
-
-                    promise.complete();
                 }
                 else
                 {
-                    promise.fail("Get null context from database for polling...."+dbOperationReply.cause().getMessage());
+                    LOGGER.error("Get null context from database for polling...."+dbOperationReply.cause().getMessage(),dbOperationReply.cause().getStackTrace());
                 }
 
             });
         }
         catch (Exception exception)
         {
-            promise.fail(exception.getCause());
-
             LOGGER.error(exception.getMessage(), exception.getStackTrace());
         }
     }

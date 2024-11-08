@@ -24,7 +24,7 @@ public class DiscoveryEngine extends AbstractVerticle
 
         Bootstrap.getVertx().eventBus().<JsonArray>localConsumer(Constants.DISCOVERY_RUN_REQUEST,jsonArrayMessage ->
         {
-            Bootstrap.getVertx().executeBlocking(promise ->
+            Bootstrap.getVertx().executeBlocking(() ->
             {
                 try
                 {
@@ -57,15 +57,11 @@ public class DiscoveryEngine extends AbstractVerticle
                                 {
                                     if(Boolean.TRUE.equals(dbOperationReply.result().body()))
                                     {
-                                        promise.complete();
-
-                                        Bootstrap.getVertx().eventBus().send(jsonArrayMessage.replyAddress(),true);
+                                        Bootstrap.getVertx().eventBus().send(jsonArrayMessage.replyAddress(),discoveryResult);
                                     }
                                     else
                                     {
-                                        promise.fail(dbOperationReply.cause());
-
-                                        Bootstrap.getVertx().eventBus().send(jsonArrayMessage.replyAddress(),false);
+                                        Bootstrap.getVertx().eventBus().send(jsonArrayMessage.replyAddress(),discoveryResult);
                                     }
                                 });
                             }
@@ -76,6 +72,7 @@ public class DiscoveryEngine extends AbstractVerticle
                 {
                     LOGGER.error(exception.getMessage(),exception.getStackTrace());
                 }
+                return null;
             });
         });
 

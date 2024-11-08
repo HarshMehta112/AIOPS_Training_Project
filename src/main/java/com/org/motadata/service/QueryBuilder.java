@@ -25,7 +25,7 @@ public class QueryBuilder extends AbstractVerticle
     {
         Bootstrap.getVertx().eventBus().<JsonObject>localConsumer(Constants.QUERY_BUILD_REQUEST, handler ->
 
-                Bootstrap.getVertx().executeBlocking(promise ->
+                Bootstrap.getVertx().executeBlocking(() ->
                 {
                     try
                     {
@@ -38,15 +38,14 @@ public class QueryBuilder extends AbstractVerticle
 
                         LOGGER.info("Built Query : " + query);
 
-                        promise.complete(query);
+                        return query;
                     }
                     catch (Exception exception)
                     {
-
                         LOGGER.error(exception.getMessage(),exception.getStackTrace());
-
-                        promise.fail(exception);
                     }
+
+                    return null;
 
                 },false, asyncResult ->
                 {

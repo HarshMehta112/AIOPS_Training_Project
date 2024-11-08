@@ -1,5 +1,6 @@
 package com.org.motadata.utils;
 
+import com.org.motadata.Bootstrap;
 import com.org.motadata.constant.Constants;
 import io.vertx.core.*;
 import io.vertx.core.json.JsonObject;
@@ -37,10 +38,8 @@ public class VerticleDeployUtil
         this.noOfWorkers = noOfWorkers;
     }
 
-    public Future<CompositeFuture> deploy()
+    public void deploy()
     {
-        List<Future> futures = new ArrayList<>();
-
         for (int index = 1; index <= noOfInstances; index++)
         {
             // Create a configuration for each instance of the verticle
@@ -49,9 +48,7 @@ public class VerticleDeployUtil
 
             DeploymentOptions options = new DeploymentOptions().setConfig(config).setWorkerPoolSize(noOfWorkers);
 
-            futures.add(vertx.deployVerticle(className, options));
+            Bootstrap.getDeployments().add(vertx.deployVerticle(className, options));
         }
-
-        return CompositeFuture.all(futures);
     }
 }

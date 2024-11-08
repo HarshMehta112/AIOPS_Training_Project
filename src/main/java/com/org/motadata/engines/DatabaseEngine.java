@@ -28,7 +28,7 @@ public class DatabaseEngine extends AbstractVerticle
     {
         Bootstrap.getVertx().eventBus().<JsonObject>localConsumer(Constants.DB_REQUESTS, handler ->
 
-                Bootstrap.getVertx().executeBlocking(promise ->
+                Bootstrap.getVertx().executeBlocking(() ->
                 {
                     try
                     {
@@ -43,16 +43,12 @@ public class DatabaseEngine extends AbstractVerticle
                                     {
                                         if(asyncResult.succeeded())
                                         {
-                                            promise.complete(asyncResult.result());
-
                                             Bootstrap.getVertx().eventBus().send(handler.replyAddress(),asyncResult.result());
                                         }
                                         else
                                         {
                                             LOGGER.error("Some issue in executing query .." + asyncResult.cause().getMessage()
                                                     , asyncResult.cause().getStackTrace());
-
-                                            promise.fail(asyncResult.cause());
                                         }
                                     });
                         }
@@ -62,17 +58,10 @@ public class DatabaseEngine extends AbstractVerticle
                                     .batchInsertMetrics(queryBuildContext.getJsonArray(Constants.DB_VALUES)
                                             ,asyncResult ->
                                             {
-                                                if(asyncResult.succeeded())
-                                                {
-                                                    promise.complete();
-                                                }
-                                                else
+                                                if(asyncResult.failed())
                                                 {
                                                     LOGGER.error("Some issue in executing batch insertion query .." + asyncResult.cause().getMessage()
                                                             , asyncResult.cause().getStackTrace());
-
-                                                    promise.fail(asyncResult.cause());
-
                                                 }
                                             });
                         }
@@ -84,8 +73,6 @@ public class DatabaseEngine extends AbstractVerticle
                                             {
                                                 if(asyncResult.succeeded())
                                                 {
-                                                    promise.complete(true);
-
                                                     Bootstrap.getVertx().eventBus().send(handler.replyAddress(),true);
                                                 }
                                                 else
@@ -95,8 +82,6 @@ public class DatabaseEngine extends AbstractVerticle
                                                     LOGGER.error("Some issue in executing query .." + asyncResult.cause().getMessage()
                                                             , asyncResult.cause().getStackTrace());
 
-                                                    promise.fail(asyncResult.cause());
-
                                                 }
                                             });
                         }
@@ -104,9 +89,10 @@ public class DatabaseEngine extends AbstractVerticle
                     catch (Exception exception)
                     {
                         LOGGER.error(exception.getMessage(),exception.getStackTrace());
-
-                        promise.fail(exception.getMessage());
                     }
+
+                    return null;
+
                 },false));
     }
 }

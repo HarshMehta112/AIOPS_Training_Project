@@ -53,7 +53,7 @@ public class AvailibilityPollingEngine extends AbstractVerticle
             var batch = CommonUtil.getBatchedData(pollRequestContext,
                     ConfigLoaderUtil.getAvailibilityPollingBatchSize());
 
-            Bootstrap.getVertx().executeBlocking(promise ->
+            Bootstrap.getVertx().executeBlocking(() ->
             {
                 try
                 {
@@ -72,15 +72,13 @@ public class AvailibilityPollingEngine extends AbstractVerticle
 
                         Bootstrap.getVertx().eventBus().send(Constants.DB_REQUESTS,dbOperationContext);
                     }
-
-                    promise.complete();
                 }
                 catch (Exception exception)
                 {
-                    promise.fail(exception.getCause());
-
                     LOGGER.error(exception.getMessage(),exception.getStackTrace());
                 }
+
+                return null;
 
             },false);
         }

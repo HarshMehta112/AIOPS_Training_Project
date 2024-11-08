@@ -39,7 +39,12 @@ public class Bootstrap
         return VERTX;
     }
 
-    private static final List<Future> deployments = new ArrayList<>();
+    private static final List<Future<String>> deployments = new ArrayList<>();
+
+    public static List<Future<String>> getDeployments()
+    {
+        return deployments;
+    }
 
     public static void main(String[] args)
     {
@@ -68,24 +73,37 @@ public class Bootstrap
                 deployments.add(VERTX.deployVerticle(AvailibilityPollingEngine.class.getName(),
                         new DeploymentOptions().setWorkerPoolSize(ConfigLoaderUtil.getAvailibilityPollingWorker())));
 
-                Future<CompositeFuture> metricPollingEngineDeployment = new VerticleDeployUtil(VERTX,
+                new VerticleDeployUtil(VERTX,
                         Constants.METRIC_POLLING_REQUESTS, MetricPollingEngine.class.getName(),ConfigLoaderUtil.getMetricPollingInstances()
                         ,ConfigLoaderUtil.getMetricPollingWorker()).deploy();
 
-                deployments.add(metricPollingEngineDeployment);
+                CompositeFuture combinedFuture = Future.join(deployments);
 
-                // Create a CompositeFuture that combines all the deployment futures
-                CompositeFuture.all(deployments).onComplete(asyncResult ->
+                combinedFuture.onComplete(asyncResult ->
                 {
                     if (asyncResult.succeeded())
                     {
-                        LOGGER.info("All verticles deployed successfully.");
+                        System.out.println("All deployments completed successfully.");
+
+                        for (int index = 0; index < deployments.size(); index++)
+                        {
+                            if (deployments.get(index).succeeded())
+                            {
+                                LOGGER.info("Deployment " + deployments.get(index) + " deployed successfully.. ");
+                            }
+                            else
+                            {
+                                LOGGER.error("Deployment " + index + " failed: " +
+                                        deployments.get(index).cause(),deployments.get(index).cause().getStackTrace());
+
+                                VERTX.close();
+                            }
+                        }
                     }
                     else
                     {
-                        LOGGER.error("Some deployments failed: " + asyncResult.cause(),asyncResult.cause().getStackTrace());
-
-                        VERTX.close();
+                        LOGGER.error("Some issue occurred in configurations loading.." + asyncResult.cause()
+                                ,asyncResult.cause().getStackTrace());
                     }
                 });
             }
