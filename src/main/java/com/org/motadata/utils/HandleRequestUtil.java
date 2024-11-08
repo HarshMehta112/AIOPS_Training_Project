@@ -60,11 +60,13 @@ public class HandleRequestUtil
                 });
     }
 
-    public static Future<JsonArray> handleSelectRequest(JsonObject queryBuildContext) {
+    public static Future<JsonArray> handleSelectRequest(JsonObject queryBuildContext)
+    {
         Promise<JsonArray> promise = Promise.promise();
 
         Bootstrap.getVertx().eventBus().<String>request(Constants.QUERY_BUILD_REQUEST, queryBuildContext, queryBuilderReply -> {
-            if (queryBuilderReply.succeeded()) {
+            if (queryBuilderReply.succeeded())
+            {
                 queryBuildContext.put(Constants.QUERY, queryBuilderReply.result().body());
 
                 Bootstrap.getVertx().eventBus().<JsonArray>request(Constants.DB_REQUESTS, queryBuildContext, dbOperationReply -> {
@@ -74,7 +76,9 @@ public class HandleRequestUtil
                         promise.fail(dbOperationReply.cause());
                     }
                 });
-            } else {
+            }
+            else
+            {
                 promise.fail(queryBuilderReply.cause());
             }
         });
