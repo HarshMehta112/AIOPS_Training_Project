@@ -93,7 +93,7 @@ public class Constants
 
     public static final String AVAILIBILITY_POLLING_REQUESTS = "availibility.polling.requests";
 
-    public static final String METRIC_POLLING_REQUESTS = "metric.polling.requests";
+    public static final String METRIC_POLLING_REQUESTS = "metric.polling.requests.";
 
     public static final String QUERY = "query";
 

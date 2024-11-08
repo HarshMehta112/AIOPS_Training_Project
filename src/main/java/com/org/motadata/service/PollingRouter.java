@@ -37,7 +37,7 @@ public class PollingRouter extends AbstractVerticle
 
     private static final Map<Integer,String> monitorIdToConsumer = new HashMap<>();
 
-    private static final Map<String,ArrayList> consumerAddressToDevices = new HashMap<>();
+    private static final Map<String,ArrayList<Integer>> consumerAddressToDevices = new HashMap<>();
 
     @Override
     public void start()
@@ -145,7 +145,7 @@ public class PollingRouter extends AbstractVerticle
                         deviceArray.add(monitorId);
                     }
 
-                    for (Map.Entry<String, ArrayList> entry : consumerAddressToDevices.entrySet())
+                    for (Map.Entry<String, ArrayList<Integer>> entry : consumerAddressToDevices.entrySet())
                     {
                         Bootstrap.getVertx().eventBus().send(entry.getKey(), entry.getValue());
                     }
@@ -179,6 +179,6 @@ public class PollingRouter extends AbstractVerticle
         // we can our own load balancing logic if needed
         int consumerIndex = new Random().nextInt(ConfigLoaderUtil.getMetricPollingInstances()) + 1;
 
-        return "consumer-" + consumerIndex;
+        return Constants.METRIC_POLLING_REQUESTS + consumerIndex;
     }
 }

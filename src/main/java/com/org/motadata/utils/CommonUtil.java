@@ -1,12 +1,8 @@
 package com.org.motadata.utils;
 
-import com.org.motadata.Bootstrap;
 import com.org.motadata.constant.Constants;
-import io.vertx.core.Future;
-import io.vertx.core.Promise;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
-import io.vertx.ext.web.RoutingContext;
 import java.util.Map;
 import java.util.Objects;
 import java.util.function.Predicate;

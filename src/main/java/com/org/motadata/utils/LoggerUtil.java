@@ -14,7 +14,7 @@ public class LoggerUtil {
     private final Logger logger;
 
     private final String className;
-    private static Level currentLogLevel = Level.INFO;
+    private static final Level currentLogLevel = Level.INFO;
 
     // Constructor to create a logger for the specific class
     public LoggerUtil(Class<?> clazz)
@@ -36,10 +36,6 @@ public class LoggerUtil {
     public void info(String message)
     {
         log(Level.INFO, CommonUtil.buildString(this.className,message));
-    }
-
-    public void debug(String message) {
-        log(Level.FINE, CommonUtil.buildString(this.className,message));
     }
 
     public void warn(String message) {

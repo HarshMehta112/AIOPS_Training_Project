@@ -1,5 +1,6 @@
 package com.org.motadata;
 
+import com.org.motadata.constant.Constants;
 import com.org.motadata.database.DatabaseServiceProvider;
 import com.org.motadata.engines.AvailibilityPollingEngine;
 import com.org.motadata.engines.DatabaseEngine;
@@ -68,7 +69,7 @@ public class Bootstrap
                         new DeploymentOptions().setWorkerPoolSize(ConfigLoaderUtil.getAvailibilityPollingWorker())));
 
                 Future<CompositeFuture> metricPollingEngineDeployment = new VerticleDeployUtil(VERTX,
-                        "consumer-", MetricPollingEngine.class.getName(),ConfigLoaderUtil.getMetricPollingInstances()
+                        Constants.METRIC_POLLING_REQUESTS, MetricPollingEngine.class.getName(),ConfigLoaderUtil.getMetricPollingInstances()
                         ,ConfigLoaderUtil.getMetricPollingWorker()).deploy();
 
                 deployments.add(metricPollingEngineDeployment);
