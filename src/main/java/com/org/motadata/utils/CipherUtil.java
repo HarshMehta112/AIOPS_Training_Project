@@ -19,13 +19,13 @@ public class CipherUtil
     {
         try
         {
-            SecretKeySpec secretKey = new SecretKeySpec(Constants.ENCRYPTION_KEY.getBytes(), Constants.ENCRYPTION_ALGORITHM);
+            var secretKey = new SecretKeySpec(Constants.ENCRYPTION_KEY.getBytes(), Constants.ENCRYPTION_ALGORITHM);
 
-            Cipher cipher = Cipher.getInstance(Constants.ENCRYPTION_ALGORITHM);
+            var cipher = Cipher.getInstance(Constants.ENCRYPTION_ALGORITHM);
 
             cipher.init(Cipher.ENCRYPT_MODE, secretKey);
 
-            byte[] encryptedData = cipher.doFinal(data.getBytes());
+            var encryptedData = cipher.doFinal(data.getBytes());
 
             return Base64.getEncoder().encodeToString(encryptedData);
         }
@@ -41,13 +41,13 @@ public class CipherUtil
     {
         try
         {
-            SecretKeySpec secretKey = new SecretKeySpec(Constants.ENCRYPTION_KEY.getBytes(), Constants.ENCRYPTION_ALGORITHM);
+            var secretKey = new SecretKeySpec(Constants.ENCRYPTION_KEY.getBytes(), Constants.ENCRYPTION_ALGORITHM);
 
-            Cipher cipher = Cipher.getInstance(Constants.ENCRYPTION_ALGORITHM);
+            var cipher = Cipher.getInstance(Constants.ENCRYPTION_ALGORITHM);
 
             cipher.init(Cipher.DECRYPT_MODE, secretKey);
 
-            byte[] decryptedData = cipher.doFinal(Base64.getDecoder().decode(encryptedData));
+            var decryptedData = cipher.doFinal(Base64.getDecoder().decode(encryptedData));
 
             return new String(decryptedData);
         }

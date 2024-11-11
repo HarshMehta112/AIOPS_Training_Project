@@ -26,7 +26,7 @@ public class HandleRequestUtil
 
                 Bootstrap.getVertx().eventBus().<Boolean>request(Constants.DB_REQUESTS, queryBuildContext, dbOperationReply ->
                 {
-                    var responseMessage = Boolean.TRUE.equals(dbOperationReply.result().body())
+                    var responseMessage = dbOperationReply.result().body()
                             ? successMessage : failureMessage;
 
                     routingContext.response()
@@ -62,7 +62,7 @@ public class HandleRequestUtil
 
     public static Future<JsonArray> handleSelectRequest(JsonObject queryBuildContext)
     {
-        Promise<JsonArray> promise = Promise.promise();
+        var promise = Promise.<JsonArray>promise();
 
         Bootstrap.getVertx().eventBus().<String>request(Constants.QUERY_BUILD_REQUEST, queryBuildContext, queryBuilderReply -> {
             if (queryBuilderReply.succeeded())
@@ -70,9 +70,12 @@ public class HandleRequestUtil
                 queryBuildContext.put(Constants.QUERY, queryBuilderReply.result().body());
 
                 Bootstrap.getVertx().eventBus().<JsonArray>request(Constants.DB_REQUESTS, queryBuildContext, dbOperationReply -> {
-                    if (dbOperationReply.succeeded()) {
+                    if (dbOperationReply.succeeded())
+                    {
                         promise.complete(dbOperationReply.result().body());
-                    } else {
+                    }
+                    else
+                    {
                         promise.fail(dbOperationReply.cause());
                     }
                 });

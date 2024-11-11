@@ -20,26 +20,30 @@ public class PluginExecutorUtil
 
     public static JsonArray executePlugin(JsonArray deviceContext)
     {
-        JsonArray batchResult = new JsonArray();
+        var batchResult = new JsonArray();
 
         try
         {
-            String dataEncoder = Base64.getEncoder().encodeToString(deviceContext.toString()
+            var dataEncoder = Base64.getEncoder().encodeToString(deviceContext.toString()
                     .getBytes(StandardCharsets.UTF_8));
 
             LOGGER.info(dataEncoder);
 
-            boolean categoryTypeCheck = deviceContext.getJsonObject(0)
+            var categoryTypeCheck = deviceContext.getJsonObject(0)
                     .getString(Constants.PLUGIN_CALL_CATEGORY)
                     .equals(Constants.POLLING);
 
-            Process process = startProcess(dataEncoder);
+            var process = startProcess(dataEncoder);
 
             if (process == null) return batchResult;
 
-            try (BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream())))
+            try (var reader = new BufferedReader(new InputStreamReader(process.getInputStream())))
             {
                 processOutput(reader, batchResult, categoryTypeCheck);
+            }
+            finally
+            {
+                process.destroy();
             }
         }
         catch (Exception exception)
@@ -58,7 +62,7 @@ public class PluginExecutorUtil
 
         try
         {
-            ProcessBuilder processBuilder = new ProcessBuilder(Constants.PLUGIN_PATH, dataEncoder);
+            var processBuilder = new ProcessBuilder(Constants.PLUGIN_PATH, dataEncoder);
 
             process = processBuilder.start();
 
@@ -85,7 +89,7 @@ public class PluginExecutorUtil
         {
             while (CommonUtil.isNonNull.test((line = reader.readLine())))
             {
-                JsonObject singleDeviceData = new JsonObject(line);
+                var singleDeviceData = new JsonObject(line);
 
                 if (categoryTypeCheck)
                 {

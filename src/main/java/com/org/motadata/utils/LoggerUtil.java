@@ -25,8 +25,10 @@ public class LoggerUtil {
 
 
     // Method to log messages at the specified level
-    public void log(Level level, String message) {
-        if (level.intValue() >= currentLogLevel.intValue()) {
+    public void log(Level level, String message)
+    {
+        if (level.intValue() >= currentLogLevel.intValue())
+        {
             logger.log(level, message);
         }
     }
@@ -45,13 +47,17 @@ public class LoggerUtil {
         log(Level.SEVERE, CommonUtil.buildString(this.className,getStackTrace(message, stackTraceElements)));
     }
 
-    private String getStackTrace(String message, StackTraceElement[] traceElements) {
+    private String getStackTrace(String message, StackTraceElement[] traceElements)
+    {
         var stackTrace = new StringBuilder();
+
         stackTrace.append(message);
+
         Arrays.stream(traceElements)
                 .forEach(stackTraceElement ->
                         stackTrace.append("\tat ")
                                 .append(stackTraceElement).append(System.lineSeparator()));
+
         return stackTrace.toString();
     }
 }

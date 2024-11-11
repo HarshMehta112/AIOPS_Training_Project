@@ -55,7 +55,7 @@ public class DiscoveryEngine extends AbstractVerticle
                                     Bootstrap.getVertx().eventBus().<Boolean>request(Constants.DB_REQUESTS,
                                             queryBuildContext, dbOperationReply ->
                                     {
-                                        if(Boolean.TRUE.equals(dbOperationReply.result().body()))
+                                        if(dbOperationReply.result().body())
                                         {
                                             Bootstrap.getVertx().eventBus().send(jsonArrayMessage.replyAddress(),discoveryResult);
                                         }
@@ -74,6 +74,5 @@ public class DiscoveryEngine extends AbstractVerticle
                     }
                     return null;
                 }));
-
     }
 }

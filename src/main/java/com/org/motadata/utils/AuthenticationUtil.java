@@ -18,6 +18,8 @@ public class AuthenticationUtil
 {
     private static final LoggerUtil LOGGER = new LoggerUtil(AuthenticationUtil.class);
 
+    private static final int TOKEN_TIMEOUT = 30;
+
     // Add a map to store refresh tokens
     private static final HashMap<String, String> refreshTokenStore = new HashMap<>();
 
@@ -32,9 +34,9 @@ public class AuthenticationUtil
 
         var password = routingContext.request().getParam(Constants.PASSWORD);
 
-        var loginUsername = Optional.ofNullable(ConfigLoaderUtil.getLoginUsername());
+        var loginUsername = Optional.ofNullable(ConfigLoaderUtil.getConfigs().getString(Constants.USER_NAME));
 
-        var loginPassword = Optional.ofNullable(ConfigLoaderUtil.getLoginPassword());
+        var loginPassword = Optional.ofNullable(ConfigLoaderUtil.getConfigs().getString(Constants.PASSWORD));
 
         Predicate<String> isUsernameValid = user -> user.equals(username);
 
@@ -47,7 +49,7 @@ public class AuthenticationUtil
             var accessToken = ConfigLoaderUtil.getJwtAuth().generateToken(
                     new JsonObject().put(Constants.USER_NAME,username),
                     new JWTOptions().setAlgorithm(Constants.JWT_TOKEN_ALGORITHM)
-                            .setExpiresInSeconds(30));
+                            .setExpiresInSeconds(TOKEN_TIMEOUT));
 
             var refreshToken = UUID.randomUUID().toString();
 
@@ -81,7 +83,7 @@ public class AuthenticationUtil
             // Generate a new access token
             var newAccessToken = ConfigLoaderUtil.getJwtAuth().generateToken(new JsonObject()
                     .put(Constants.USER_NAME, username), new JWTOptions().
-                    setAlgorithm(Constants.JWT_TOKEN_ALGORITHM).setExpiresInSeconds(30));
+                    setAlgorithm(Constants.JWT_TOKEN_ALGORITHM).setExpiresInSeconds(TOKEN_TIMEOUT));
 
             routingContext.response().putHeader(Constants.CONTENT_TYPE, Constants.CONTENT_TYPE_APPLICATION_JSON)
                     .end(new JsonObject().put("message","Your previous access token expired, So generated new Token..." +
@@ -128,7 +130,7 @@ public class AuthenticationUtil
                 }
                 else
                 {
-                    String refreshToken = AuthenticationUtil.getRefreshTokenStore().get("admin");
+                    var refreshToken = AuthenticationUtil.getRefreshTokenStore().get("admin");
 
                     if(CommonUtil.isNonNull.test(refreshToken) &&
                             isTokenExpired(refreshToken.split(Constants.VALUE_SEPARATOR_WITH_ESCAPE)[1]))
@@ -157,13 +159,13 @@ public class AuthenticationUtil
 
     public static boolean isTokenExpired(String generatedDate)
     {
-        LocalDateTime pastDateTime = LocalDateTime.parse(generatedDate);
+        var pastDateTime = LocalDateTime.parse(generatedDate);
 
-        LocalDateTime currentDateTime = LocalDateTime.now();
+        var currentDateTime = LocalDateTime.now();
 
-        Duration duration = Duration.between(pastDateTime, currentDateTime);
+        var duration = Duration.between(pastDateTime, currentDateTime);
 
-        long seconds = duration.getSeconds();
+        var seconds = duration.getSeconds();
 
         LOGGER.info("Duration of access token : " + seconds + " seconds.");
 

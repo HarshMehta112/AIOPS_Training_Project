@@ -11,7 +11,6 @@ import io.vertx.sqlclient.Pool;
 import io.vertx.sqlclient.Tuple;
 
 import java.util.ArrayList;
-import java.util.Map;
 
 
 /**
@@ -23,38 +22,40 @@ import java.util.Map;
 
 public class DatabaseServiceImpl implements DatabaseService
 {
-
     private final Pool pool;
 
-    public DatabaseServiceImpl(Pool pool, Handler<AsyncResult<DatabaseService>> handler) {
+    public DatabaseServiceImpl(Pool pool, Handler<AsyncResult<DatabaseService>> handler)
+    {
         this.pool = pool;
+
         handler.handle(Future.succeededFuture(this));
     }
 
     @Override
     public DatabaseService executeQuery(String query, JsonObject params, Handler<AsyncResult<Void>> resultHandler) {
 
-        Tuple tuple = Tuple.tuple();
+        var tuple = Tuple.tuple();
 
         if (CommonUtil.isNonNull.test(params))
         {
             params.forEach(entry -> tuple.addValue(entry.getValue()));
+
+            pool.withConnection(connection -> connection
+                    .preparedQuery(query)
+                    .execute(tuple)
+                    .onComplete(result ->
+                    {
+                        if (result.succeeded())
+                        {
+                            resultHandler.handle(Future.succeededFuture());
+                        }
+                        else
+                        {
+                            resultHandler.handle(Future.failedFuture(result.cause()));
+                        }
+                    }));
         }
 
-        pool.withConnection(connection -> connection
-                .preparedQuery(query)
-                .execute(tuple)
-                .onComplete(result ->
-                {
-                    if (result.succeeded())
-                    {
-                        resultHandler.handle(Future.succeededFuture());
-                    }
-                    else
-                    {
-                        resultHandler.handle(Future.failedFuture(result.cause()));
-                    }
-                }));
         return this;
     }
 
@@ -86,28 +87,25 @@ public class DatabaseServiceImpl implements DatabaseService
     @Override
     public DatabaseService batchInsertMetrics(JsonArray batchContext, Handler<AsyncResult<Void>> resultHandler)
     {
-        var monitorId = 0;
-
         // Prepare a list of tuples for batch execution
         var batch = new ArrayList<Tuple>();
 
-        for (Object object : batchContext)
+        for (var index=0; index<batchContext.size(); index++)
         {
-            if (object instanceof JsonObject)
+            var context = batchContext.getJsonObject(index);
+
+            var monitorId = context.getInteger(Constants.MONITOR_ID);
+
+            context.remove(Constants.MONITOR_ID);
+
+            for (var entry : context)
             {
-                monitorId = ((JsonObject) object).getInteger(Constants.MONITOR_ID);
+                var metricName = entry.getKey();
 
-                ((JsonObject) object).remove(Constants.MONITOR_ID);
+                var metricValue = entry.getValue();
 
-                for (Map.Entry<String, Object> entry : (JsonObject) object)
-                {
-                    String metricName = entry.getKey();
-
-                    Object metricValue = entry.getValue();
-
-                    // Add to the batch
-                    batch.add(Tuple.of(monitorId, metricName, metricValue.toString())); // Convert value to String
-                }
+                // Add to the batch
+                batch.add(Tuple.of(monitorId, metricName, metricValue.toString())); // Convert value to String
             }
         }
 
@@ -129,8 +127,10 @@ public class DatabaseServiceImpl implements DatabaseService
 
         return this;
     }
+
     @Override
-    public void close() {
+    public void close()
+    {
         pool.close();
     }
 }

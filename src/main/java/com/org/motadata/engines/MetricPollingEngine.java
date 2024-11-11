@@ -35,7 +35,7 @@ public class MetricPollingEngine extends AbstractVerticle
     @Override
     public void start()
     {
-        String consumerId = config().getString(Constants.ROUTING_KEY);
+        var consumerId = config().getString(Constants.ROUTING_KEY);
 
         vertx.eventBus().<ArrayList<Integer>>localConsumer(consumerId, metricPollRequest ->
         {
@@ -50,13 +50,13 @@ public class MetricPollingEngine extends AbstractVerticle
 
     private Future<Boolean> updateCredentialContext(ArrayList<Integer> monitorIds)
     {
-        Promise<Boolean> promise = Promise.promise();
+        var promise = Promise.<Boolean>promise();
 
         try
         {
             var condition = new StringBuilder();
 
-            for(int monitorId : monitorIds)
+            for(var monitorId : monitorIds)
             {
                 if(!credentialContext.containsKey(monitorId))
                 {
@@ -107,14 +107,14 @@ public class MetricPollingEngine extends AbstractVerticle
     {
         updateCredentialContext(monitorIds).onComplete(booleanAsyncResult ->
         {
-            if(Boolean.TRUE.equals(booleanAsyncResult.result()))
+            if(booleanAsyncResult.result())
             {
                 var pollingContext = CommonUtil.getMetricPollingContext(credentialContext);
 
                 while (pollingContext.size() > 0)
                 {
                     var batch = CommonUtil.getBatchedData(pollingContext,
-                            ConfigLoaderUtil.getMetricPollingBatchSize());
+                            ConfigLoaderUtil.getConfigs().getJsonObject(Constants.POLLING_BATCH_CONFIG).getInteger(Constants.METRIC_POLLING_BATCH));
 
                     Bootstrap.getVertx().executeBlocking(() ->
                     {

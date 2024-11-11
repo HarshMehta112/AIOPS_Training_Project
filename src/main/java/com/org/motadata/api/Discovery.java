@@ -240,7 +240,7 @@ public class Discovery implements InitializeRouter, CrudOperations
             Bootstrap.getVertx().eventBus().<Boolean>request(Constants.DB_REQUESTS,dbOperationContext,
                     dbOperationReply ->
                     {
-                        var responseMessage = Boolean.TRUE.equals(dbOperationReply.result().body())
+                        var responseMessage = dbOperationReply.result().body()
                                 ? "Monitor provisioned successfully...." :
                                 "Monitor not provisioned please try again ....";
 

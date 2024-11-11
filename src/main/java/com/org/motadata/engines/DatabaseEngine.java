@@ -86,6 +86,6 @@ public class DatabaseEngine extends AbstractVerticle
 
                     return null;
 
-                },false));
+                },false)).exceptionHandler(exceptionHandler->LOGGER.error(exceptionHandler.getMessage(),exceptionHandler.getStackTrace()));
     }
 }

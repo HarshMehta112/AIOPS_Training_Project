@@ -38,13 +38,13 @@ public class VerticleDeployUtil
 
     public void deploy()
     {
-        for (int index = 1; index <= noOfInstances; index++)
+        for (var index = 1; index <= noOfInstances; index++)
         {
             // Create a configuration for each instance of the verticle
-            JsonObject config = new JsonObject()
+            var config = new JsonObject()
                     .put(Constants.ROUTING_KEY, routingKey + index);  // Unique consumer ID
 
-            DeploymentOptions options = new DeploymentOptions().setConfig(config).setWorkerPoolSize(noOfWorkers);
+            var options = new DeploymentOptions().setConfig(config).setWorkerPoolSize(noOfWorkers);
 
             Bootstrap.getDeployments().add(vertx.deployVerticle(className, options));
         }

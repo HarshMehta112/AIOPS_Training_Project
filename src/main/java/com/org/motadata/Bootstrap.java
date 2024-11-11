@@ -29,8 +29,8 @@ public class Bootstrap
     private static final LoggerUtil LOGGER = new LoggerUtil(Bootstrap.class);
 
     private static final Vertx VERTX = Vertx.vertx(new VertxOptions()
-            .setEventLoopPoolSize(ConfigLoaderUtil.getEventLoopWorker())
-            .setWorkerPoolSize(ConfigLoaderUtil.getWorkerPoolHelper())
+            .setEventLoopPoolSize(8)
+            .setWorkerPoolSize(16)
             .setMaxWorkerExecuteTime(Duration.ofSeconds(60).toNanos())
             .setWarningExceptionTime(Duration.ofSeconds(60).toNanos()));
 
@@ -39,11 +39,11 @@ public class Bootstrap
         return VERTX;
     }
 
-    private static final List<Future<String>> deployments = new ArrayList<>();
+    private static final List<Future<String>> DEPLOYMENTS = new ArrayList<>();
 
     public static List<Future<String>> getDeployments()
     {
-        return deployments;
+        return DEPLOYMENTS;
     }
 
     public static void main(String[] args)
@@ -52,47 +52,50 @@ public class Bootstrap
         {
             if(Boolean.TRUE.equals(booleanAsyncResult.result()))
             {
-                deployments.add(VERTX.deployVerticle(DatabaseServiceProvider.class.getName()));
+                var workers = ConfigLoaderUtil.getConfigs().getJsonObject(Constants.WORKERS);
 
-                deployments.add(VERTX.deployVerticle(DatabaseEngine.class.getName(),
-                        new DeploymentOptions().setWorkerPoolSize(ConfigLoaderUtil.getDbWorker())));
+                DEPLOYMENTS.add(VERTX.deployVerticle(DatabaseServiceProvider.class.getName()));
 
-                deployments.add(VERTX.deployVerticle(ApiServer.class.getName()));
+                DEPLOYMENTS.add(VERTX.deployVerticle(DatabaseEngine.class.getName(),
+                        new DeploymentOptions().setWorkerPoolSize(workers.getInteger(Constants.DB_WORKER))));
 
-                deployments.add(VERTX.deployVerticle(QueryBuilder.class.getName(),
-                        new DeploymentOptions().setWorkerPoolSize(ConfigLoaderUtil.getQueryBuilderWorker())));
+                DEPLOYMENTS.add(VERTX.deployVerticle(ApiServer.class.getName()));
 
-                deployments.add(VERTX.deployVerticle(DiscoveryEngine.class.getName(),
-                        new DeploymentOptions().setWorkerPoolSize(ConfigLoaderUtil.getDiscoveryWorker())));
+                DEPLOYMENTS.add(VERTX.deployVerticle(QueryBuilder.class.getName(),
+                        new DeploymentOptions().setWorkerPoolSize(workers.getInteger(Constants.QUERY_BUILDER_WORKER))));
 
-                deployments.add(VERTX.deployVerticle(PollingTrigger.class.getName()));
+                DEPLOYMENTS.add(VERTX.deployVerticle(DiscoveryEngine.class.getName(),
+                        new DeploymentOptions().setWorkerPoolSize(workers.getInteger(Constants.DISCOVERY_WORKER))));
 
-                deployments.add(VERTX.deployVerticle(PollingRouter.class.getName(),
-                        new DeploymentOptions().setWorkerPoolSize(ConfigLoaderUtil.getPollingRouterWorker())));
+                DEPLOYMENTS.add(VERTX.deployVerticle(PollingTrigger.class.getName()));
 
-                deployments.add(VERTX.deployVerticle(AvailibilityPollingEngine.class.getName(),
-                        new DeploymentOptions().setWorkerPoolSize(ConfigLoaderUtil.getAvailibilityPollingWorker())));
+                DEPLOYMENTS.add(VERTX.deployVerticle(PollingRouter.class.getName(),
+                        new DeploymentOptions().setWorkerPoolSize(workers.getInteger(Constants.POLLING_ROUTER_WORKER))));
+
+                DEPLOYMENTS.add(VERTX.deployVerticle(AvailibilityPollingEngine.class.getName(),
+                        new DeploymentOptions().setWorkerPoolSize(workers.getInteger(Constants.AVAILIBILITY_POLLING_WORKER))));
 
                 new VerticleDeployUtil(VERTX,
-                        Constants.METRIC_POLLING_REQUESTS, MetricPollingEngine.class.getName(),ConfigLoaderUtil.getMetricPollingInstances()
-                        ,ConfigLoaderUtil.getMetricPollingWorker()).deploy();
+                        Constants.METRIC_POLLING_REQUESTS, MetricPollingEngine.class.getName(),
+                        workers.getInteger(Constants.METRIC_POLLING_INSTANCES),
+                        workers.getInteger(Constants.METRIC_POLLING_WORKER)).deploy();
 
-                CompositeFuture combinedFuture = Future.join(deployments);
+                CompositeFuture combinedFuture = Future.join(DEPLOYMENTS);
 
                 combinedFuture.onComplete(asyncResult ->
                 {
                     if (asyncResult.succeeded())
                     {
-                        for (int index = 0; index < deployments.size(); index++)
+                        for (var index = 0; index < DEPLOYMENTS.size(); index++)
                         {
-                            if (deployments.get(index).succeeded())
+                            if (DEPLOYMENTS.get(index).succeeded())
                             {
-                                LOGGER.info("Deployment " + deployments.get(index) + " deployed successfully.. ");
+                                LOGGER.info("Deployment " + DEPLOYMENTS.get(index) + " deployed successfully.. ");
                             }
                             else
                             {
                                 LOGGER.error("Deployment " + index + " failed: " +
-                                        deployments.get(index).cause(),deployments.get(index).cause().getStackTrace());
+                                        DEPLOYMENTS.get(index).cause(),DEPLOYMENTS.get(index).cause().getStackTrace());
 
                                 VERTX.close();
                             }
@@ -102,6 +105,8 @@ public class Bootstrap
                     {
                         LOGGER.error("Some issue occurred in configurations loading.." + asyncResult.cause()
                                 ,asyncResult.cause().getStackTrace());
+
+                        VERTX.close();
                     }
                 });
             }

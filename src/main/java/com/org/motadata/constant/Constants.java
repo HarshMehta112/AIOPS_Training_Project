@@ -19,7 +19,7 @@ public class Constants
 
     public static final String RESOURCES_PATH = "/home/harsh/Project/AIOPS_Training_Project/src/main/resources/";
 
-    public static final String PROPERTIES_FILE = "config.properties";
+    public static final String CONFIG_FILE = "config.json";
 
     public static final String VALUE_SEPARATOR = "_|@#|_";
 
@@ -131,9 +131,9 @@ public class Constants
 
     public static final String DISCOVERY_PROVISION_SP = "CALL insert_into_monitor(###)";
 
-    public static final String AVAILIBILITY_POLLING_TIME = "availibility_poll_time";
+    public static final String AVAILIBILITY_POLLING_TIME = "availibilityPollTime";
 
-    public static final String METRIC_POLLING_TIME = "metric_poll_time";
+    public static final String METRIC_POLLING_TIME = "metricPollTime";
 
     public static final String METRIC_GET_QUERY = "SELECT DISTINCT ON (metric_name) metric_name, metric_value, event_time FROM tbl_metric WHERE id = ### ORDER BY metric_name, event_time DESC;";
 
@@ -144,23 +144,17 @@ public class Constants
 
     public static final String METRIC_INSERT_QUERY = "INSERT INTO tbl_metric (id, metric_name, metric_value) VALUES ($1, $2, $3)";
 
-    public static final String DB_HOST = "dbHost";
+    public static final String HOST = "host";
 
-    public static final String DB_PORT = "dbPort";
+    public static final String DATABASE = "database";
 
-    public static final String DB_DATABASE_NAME = "dbDatabase";
+    public static final String DB_MAX_CONNECTIONS = "maxConnections";
 
-    public static final String DB_USERNAME = "dbUser";
-
-    public static final String DB_PASSWORD = "dbPassword";
-
-    public static final String DB_MAX_CONNECTIONS = "dbMaxConnections";
-
-    public static final String HTTP_PORT = "HttpServerPort";
+    public static final String HTTP_PORT = "httpServerPort";
 
     public static final String DB_SSL_CERT_PATH = "/etc/postgresql/ssl/postgresql.crt";
 
-    public static final String DB_WORKERS = "dbWorker";
+    public static final String DB_WORKER = "dbWorker";
 
     public static final String QUERY_BUILDER_WORKER = "queryBuilderWorker";
 
@@ -179,4 +173,10 @@ public class Constants
     public static final String METRIC_POLLING_BATCH = "metricPollingBatchSize";
 
     public static final String HASH_SEPARATOR = "###";
+
+    public static final String WORKERS = "workers";
+
+    public static final String DB_CONFIG = "db";
+
+    public static final String POLLING_BATCH_CONFIG = "batchSizes";
 }

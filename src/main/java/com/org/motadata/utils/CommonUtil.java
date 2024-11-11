@@ -33,9 +33,9 @@ public class CommonUtil
     {
         var batch = new JsonArray();
 
-        int maxBatchSize = Math.min(batchSize, context.size());
+        var maxBatchSize = Math.min(batchSize, context.size());
 
-        for (int index = 0; index < maxBatchSize; index++)
+        for (var index = 0; index < maxBatchSize; index++)
         {
             batch.add(context.getJsonObject(0));
 
@@ -49,7 +49,7 @@ public class CommonUtil
     {
         try
         {
-            for(int index=0;index<context.size();index++)
+            for(var index=0;index<context.size();index++)
             {
                 var deviceContext = context.getJsonObject(index);
 
@@ -70,7 +70,7 @@ public class CommonUtil
     {
         var result = new JsonArray();
 
-        for (Map.Entry<Integer, String> entry : credentialContext.entrySet())
+        for (var entry : credentialContext.entrySet())
         {
             var value = entry.getValue().split(Constants.VALUE_SEPARATOR_WITH_ESCAPE);
 

@@ -43,7 +43,7 @@ public class AvailibilityPollingEngine extends AbstractVerticle
         while (pollRequestContext.size() > 0)
         {
             var batch = CommonUtil.getBatchedData(pollRequestContext,
-                    ConfigLoaderUtil.getAvailibilityPollingBatchSize());
+                    ConfigLoaderUtil.getConfigs().getJsonObject(Constants.POLLING_BATCH_CONFIG).getInteger(Constants.AVAILIBILITY_POLLING_BATCH));
 
             Bootstrap.getVertx().executeBlocking(() ->
             {

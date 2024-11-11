@@ -1,6 +1,7 @@
 package com.org.motadata.api;
 
 import com.org.motadata.Bootstrap;
+import com.org.motadata.constant.Constants;
 import com.org.motadata.utils.AuthenticationUtil;
 import com.org.motadata.utils.ConfigLoaderUtil;
 import com.org.motadata.utils.LoggerUtil;
@@ -57,24 +58,24 @@ public class ApiServer extends AbstractVerticle
         new Monitor().initRouter(monitorRouter);
 
         // Start HTTP server
-        Bootstrap.getVertx().createHttpServer(new HttpServerOptions()
-                .setSsl(true).setKeyCertOptions(new JksOptions().setPath(ConfigLoaderUtil.getSslKeystorePath())
-                        .setPassword(ConfigLoaderUtil.getSslKeystorePassword())))
-                .requestHandler(apiRouter).listen(ConfigLoaderUtil.getHttpServerPort())
-                .onComplete(asyncResult->
-        {
-            if(asyncResult.succeeded())
-            {
-                LOGGER.info("Server started on https ");
-            }
-            else
-            {
-                LOGGER.error("Some error occurred " + asyncResult.cause().getMessage(), asyncResult.cause().getStackTrace());
-            }
-        });
+        var httpServer = Bootstrap.getVertx().createHttpServer(new HttpServerOptions()
+                .setSsl(true).setKeyCertOptions(new JksOptions().setPath(ConfigLoaderUtil.getConfigs()
+                                .getString(Constants.SSL_KEYSTORE_PATH))
+                        .setPassword(ConfigLoaderUtil.getConfigs().getString(Constants.SSL_KEYSTORE_PASSWORD))));
 
+        httpServer.requestHandler(apiRouter)
+                .exceptionHandler(handler->LOGGER.error(handler.getMessage(),handler.getStackTrace()))
+                .listen(ConfigLoaderUtil.getConfigs().getInteger(Constants.HTTP_PORT))
+            .onComplete(asyncResult->
+            {
+                if(asyncResult.succeeded())
+                {
+                    LOGGER.info("Server started on https ");
+                }
+                else
+                {
+                    LOGGER.error("Some error occurred " + asyncResult.cause().getMessage(), asyncResult.cause().getStackTrace());
+                }
+            });
     }
-
-
-
 }

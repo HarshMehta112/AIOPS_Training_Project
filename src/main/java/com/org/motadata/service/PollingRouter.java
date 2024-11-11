@@ -74,7 +74,7 @@ public class PollingRouter extends AbstractVerticle
 
     private Future<JsonArray> getDeviceData()
     {
-        Promise<JsonArray> promise = Promise.promise();
+        var promise = Promise.<JsonArray>promise();
 
         try
         {
@@ -120,7 +120,7 @@ public class PollingRouter extends AbstractVerticle
 
                     String consumerAddress;
 
-                    for(int index=0; index<devicesContext.size();index++)
+                    for(var index=0; index<devicesContext.size();index++)
                     {
                         var monitorId = devicesContext.getJsonObject(index).getInteger(Constants.ID);
 
@@ -134,7 +134,7 @@ public class PollingRouter extends AbstractVerticle
                         deviceArray.add(monitorId);
                     }
 
-                    for (Map.Entry<String, ArrayList<Integer>> entry : consumerAddressToDevices.entrySet())
+                    for (var entry : consumerAddressToDevices.entrySet())
                     {
                         Bootstrap.getVertx().eventBus().send(entry.getKey(), entry.getValue());
                     }
@@ -162,7 +162,8 @@ public class PollingRouter extends AbstractVerticle
     private String assignConsumerForMonitorId()
     {
         // we can our own load balancing logic if needed
-        int consumerIndex = new Random().nextInt(ConfigLoaderUtil.getMetricPollingInstances()) + 1;
+        var consumerIndex = new Random().nextInt(ConfigLoaderUtil.getConfigs().getJsonObject(Constants.WORKERS)
+                .getInteger(Constants.METRIC_POLLING_INSTANCES)) + 1;
 
         return Constants.METRIC_POLLING_REQUESTS + consumerIndex;
     }

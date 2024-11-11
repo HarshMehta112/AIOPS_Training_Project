@@ -20,14 +20,17 @@ public class FlywayExecutor
 
     public static Future<Boolean> executeDbMigration()
     {
-        Promise<Boolean> promise = Promise.promise();
+        var promise = Promise.<Boolean>promise();
 
         try
         {
             var flyway = Flyway.configure()
-                    .dataSource(CommonUtil.buildString("jdbc:postgresql://",ConfigLoaderUtil.getDbHost(),":",
-                                    String.valueOf(ConfigLoaderUtil.getDbPort()),"/",ConfigLoaderUtil.getDbName()),
-                            ConfigLoaderUtil.getDbUsername(), ConfigLoaderUtil.getDbPassword())
+                    .dataSource(CommonUtil.buildString("jdbc:postgresql://"
+                                    ,ConfigLoaderUtil.getConfigs().getJsonObject(Constants.DB_CONFIG).getString(Constants.HOST),":",
+                                    ConfigLoaderUtil.getConfigs().getJsonObject(Constants.DB_CONFIG).getString(Constants.PORT)
+                                    ,"/",ConfigLoaderUtil.getConfigs().getJsonObject(Constants.DB_CONFIG).getString(Constants.DATABASE)),
+                            ConfigLoaderUtil.getConfigs().getJsonObject(Constants.DB_CONFIG).getString(Constants.USER_NAME),
+                            ConfigLoaderUtil.getConfigs().getJsonObject(Constants.DB_CONFIG).getString(Constants.PASSWORD))
                     .locations("filesystem:"+ Constants.RESOURCES_PATH +"/db.migration/")
                     .schemas("public")
                     .load();

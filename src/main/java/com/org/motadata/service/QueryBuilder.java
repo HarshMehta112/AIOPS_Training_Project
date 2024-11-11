@@ -8,7 +8,6 @@ import io.vertx.core.AbstractVerticle;
 import io.vertx.core.json.JsonObject;
 
 import java.util.ArrayList;
-import java.util.List;
 import java.util.stream.Collectors;
 
 /**
@@ -79,12 +78,12 @@ public class QueryBuilder extends AbstractVerticle
     }
 
     public String buildInsert(String tableName, JsonObject params)
-        {
-        List<String> fields = new ArrayList<>(params.fieldNames());
+    {
+        var fields = new ArrayList<>(params.fieldNames());
 
-        String columns = String.join(", ", fields);
+        var columns = String.join(", ", fields);
 
-        String values = fields.stream()
+        var values = fields.stream()
                 .map(key -> "$" + (fields.indexOf(key) + 1))
                 .collect(Collectors.joining(", "));
 
@@ -93,9 +92,9 @@ public class QueryBuilder extends AbstractVerticle
 
     public String buildUpdate(String tableName, JsonObject params, String condition)
     {
-        List<String> fields = params.fieldNames().stream().toList();
+        var fields = params.fieldNames().stream().toList();
 
-        String setClause = fields.stream()
+        var setClause = fields.stream()
                 .map(key -> key + " = $" + (fields.indexOf(key) + 1))
                 .collect(Collectors.joining(", "));
 

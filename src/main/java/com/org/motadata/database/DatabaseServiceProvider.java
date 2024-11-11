@@ -21,11 +21,11 @@ public class DatabaseServiceProvider extends AbstractVerticle {
 
     // Create PostgreSQL connection options
     private static final PgConnectOptions CONNECT_OPTIONS = new PgConnectOptions()
-            .setPort(ConfigLoaderUtil.getDbPort())
-            .setHost(ConfigLoaderUtil.getDbHost())
-            .setDatabase(ConfigLoaderUtil.getDbName())
-            .setUser(ConfigLoaderUtil.getDbUsername())
-            .setPassword(ConfigLoaderUtil.getDbPassword())
+            .setPort(ConfigLoaderUtil.getConfigs().getJsonObject(Constants.DB_CONFIG).getInteger(Constants.PORT))
+            .setHost(ConfigLoaderUtil.getConfigs().getJsonObject(Constants.DB_CONFIG).getString(Constants.HOST))
+            .setDatabase(ConfigLoaderUtil.getConfigs().getJsonObject(Constants.DB_CONFIG).getString(Constants.DATABASE))
+            .setUser(ConfigLoaderUtil.getConfigs().getJsonObject(Constants.DB_CONFIG).getString(Constants.USER_NAME))
+            .setPassword(ConfigLoaderUtil.getConfigs().getJsonObject(Constants.DB_CONFIG).getString(Constants.PASSWORD))
             .setReconnectAttempts(3).setReconnectInterval(2000L)
             .setSsl(true).setSslMode(SslMode.REQUIRE)
             .setPemTrustOptions(new PemTrustOptions()
@@ -33,7 +33,7 @@ public class DatabaseServiceProvider extends AbstractVerticle {
 
     // Pool options
     private static final PoolOptions POOL_OPTIONS = new PoolOptions()
-            .setMaxSize(ConfigLoaderUtil.getDbMaxConnections());
+            .setMaxSize(ConfigLoaderUtil.getConfigs().getJsonObject(Constants.DB_CONFIG).getInteger(Constants.DB_MAX_CONNECTIONS));
 
     // Create the pooled client
     private static final Pool POOL = Pool.pool(Bootstrap.getVertx(), CONNECT_OPTIONS, POOL_OPTIONS);

@@ -7,7 +7,6 @@ import com.org.motadata.utils.LoggerUtil;
 import io.vertx.core.AbstractVerticle;
 
 import java.util.HashMap;
-import java.util.Map;
 
 /**
  * Description:
@@ -23,9 +22,9 @@ public class PollingTrigger extends AbstractVerticle
     {
         var scheduleTime = new HashMap<String,Long>();
 
-        scheduleTime.put(Constants.AVAILIBILITY_POLLING_TIME, ConfigLoaderUtil.getAvailibilityPollTime());
+        scheduleTime.put(Constants.AVAILIBILITY_POLLING_TIME,ConfigLoaderUtil.getConfigs().getLong(Constants.AVAILIBILITY_POLLING_TIME));
 
-        scheduleTime.put(Constants.METRIC_POLLING_TIME, ConfigLoaderUtil.getMetricPollTime());
+        scheduleTime.put(Constants.METRIC_POLLING_TIME, ConfigLoaderUtil.getConfigs().getLong(Constants.METRIC_POLLING_TIME));
 
         var updatedScheduleTime = new HashMap<>(scheduleTime);
 
@@ -33,7 +32,7 @@ public class PollingTrigger extends AbstractVerticle
         {
             try
             {
-                for(Map.Entry<String,Long> entry: updatedScheduleTime.entrySet())
+                for(var entry: updatedScheduleTime.entrySet())
                 {
                     var time = entry.getValue();
 
