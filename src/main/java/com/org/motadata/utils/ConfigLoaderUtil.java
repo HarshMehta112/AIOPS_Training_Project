@@ -62,8 +62,6 @@ public class ConfigLoaderUtil
             {
                 var configs = configHandler.result();
 
-                System.out.println(configs);
-
                 setConfigs(configs);
 
                 setUpJWTAuth(configs);

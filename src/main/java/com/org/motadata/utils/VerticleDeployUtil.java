@@ -36,17 +36,30 @@ public class VerticleDeployUtil
         this.noOfWorkers = noOfWorkers;
     }
 
-    public void deploy()
+    public Future<Boolean> deploy()
     {
-        for (var index = 1; index <= noOfInstances; index++)
+        var promise = Promise.<Boolean>promise();
+
+        try
         {
-            // Create a configuration for each instance of the verticle
-            var config = new JsonObject()
-                    .put(Constants.ROUTING_KEY, routingKey + index);  // Unique consumer ID
+            for (var index = 1; index <= noOfInstances; index++)
+            {
+                // Create a configuration for each instance of the verticle
+                var config = new JsonObject()
+                        .put(Constants.ROUTING_KEY, routingKey + index);  // Unique consumer ID
 
-            var options = new DeploymentOptions().setConfig(config).setWorkerPoolSize(noOfWorkers);
+                var options = new DeploymentOptions().setConfig(config).setWorkerPoolSize(noOfWorkers);
 
-            Bootstrap.getDeployments().add(vertx.deployVerticle(className, options));
+                Bootstrap.getDeployments().add(vertx.deployVerticle(className, options));
+            }
         }
+        catch (Exception exception)
+        {
+            promise.fail(exception.getCause().getMessage());
+        }
+
+        promise.complete(true);
+
+        return promise.future();
     }
 }

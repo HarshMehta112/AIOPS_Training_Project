@@ -48,75 +48,56 @@ public class Bootstrap
 
     public static void main(String[] args)
     {
-        ConfigLoaderUtil.init().onComplete(booleanAsyncResult ->
+        try
         {
-            if(Boolean.TRUE.equals(booleanAsyncResult.result()))
+            ConfigLoaderUtil.init().onComplete(booleanAsyncResult ->
             {
-                var workers = ConfigLoaderUtil.getConfigs().getJsonObject(Constants.WORKERS);
-
-                DEPLOYMENTS.add(VERTX.deployVerticle(DatabaseServiceProvider.class.getName()));
-
-                DEPLOYMENTS.add(VERTX.deployVerticle(DatabaseEngine.class.getName(),
-                        new DeploymentOptions().setWorkerPoolSize(workers.getInteger(Constants.DB_WORKER))));
-
-                DEPLOYMENTS.add(VERTX.deployVerticle(ApiServer.class.getName()));
-
-                DEPLOYMENTS.add(VERTX.deployVerticle(QueryBuilder.class.getName(),
-                        new DeploymentOptions().setWorkerPoolSize(workers.getInteger(Constants.QUERY_BUILDER_WORKER))));
-
-                DEPLOYMENTS.add(VERTX.deployVerticle(DiscoveryEngine.class.getName(),
-                        new DeploymentOptions().setWorkerPoolSize(workers.getInteger(Constants.DISCOVERY_WORKER))));
-
-                DEPLOYMENTS.add(VERTX.deployVerticle(PollingTrigger.class.getName()));
-
-                DEPLOYMENTS.add(VERTX.deployVerticle(PollingRouter.class.getName(),
-                        new DeploymentOptions().setWorkerPoolSize(workers.getInteger(Constants.POLLING_ROUTER_WORKER))));
-
-                DEPLOYMENTS.add(VERTX.deployVerticle(AvailibilityPollingEngine.class.getName(),
-                        new DeploymentOptions().setWorkerPoolSize(workers.getInteger(Constants.AVAILIBILITY_POLLING_WORKER))));
-
-                new VerticleDeployUtil(VERTX,
-                        Constants.METRIC_POLLING_REQUESTS, MetricPollingEngine.class.getName(),
-                        workers.getInteger(Constants.METRIC_POLLING_INSTANCES),
-                        workers.getInteger(Constants.METRIC_POLLING_WORKER)).deploy();
-
-                CompositeFuture combinedFuture = Future.join(DEPLOYMENTS);
-
-                combinedFuture.onComplete(asyncResult ->
+                if(Boolean.TRUE.equals(booleanAsyncResult.result()))
                 {
-                    if (asyncResult.succeeded())
-                    {
-                        for (var index = 0; index < DEPLOYMENTS.size(); index++)
-                        {
-                            if (DEPLOYMENTS.get(index).succeeded())
+                    var workers = ConfigLoaderUtil.getConfigs().getJsonObject(Constants.WORKERS);
+
+                    VERTX.deployVerticle(DatabaseServiceProvider.class.getName()).compose(handler->
+                            VERTX.deployVerticle(DatabaseEngine.class.getName(),
+                                    new DeploymentOptions().setWorkerPoolSize(workers.getInteger(Constants.DB_WORKER)))).compose(handler->
+                            VERTX.deployVerticle(ApiServer.class.getName())).compose(handler->
+                            VERTX.deployVerticle(QueryBuilder.class.getName(),
+                                    new DeploymentOptions().setWorkerPoolSize(workers.getInteger(Constants.QUERY_BUILDER_WORKER)))).compose(handler->
+                            VERTX.deployVerticle(DiscoveryEngine.class.getName(),
+                                    new DeploymentOptions().setWorkerPoolSize(workers.getInteger(Constants.DISCOVERY_WORKER)))).compose(handler->
+                            VERTX.deployVerticle(PollingTrigger.class.getName())).compose(handler->
+                            VERTX.deployVerticle(PollingRouter.class.getName(),
+                                    new DeploymentOptions().setWorkerPoolSize(workers.getInteger(Constants.POLLING_ROUTER_WORKER)))).compose(handler->
+                            VERTX.deployVerticle(AvailibilityPollingEngine.class.getName(),
+                                    new DeploymentOptions().setWorkerPoolSize(workers.getInteger(Constants.AVAILIBILITY_POLLING_WORKER)))).compose(handler->
+                            new VerticleDeployUtil(VERTX, Constants.METRIC_POLLING_REQUESTS, MetricPollingEngine.class.getName(),
+                                    workers.getInteger(Constants.METRIC_POLLING_INSTANCES),
+                                    workers.getInteger(Constants.METRIC_POLLING_WORKER)).deploy()).onComplete(asyncResult->
                             {
-                                LOGGER.info("Deployment " + DEPLOYMENTS.get(index) + " deployed successfully.. ");
-                            }
-                            else
-                            {
-                                LOGGER.error("Deployment " + index + " failed: " +
-                                        DEPLOYMENTS.get(index).cause(),DEPLOYMENTS.get(index).cause().getStackTrace());
+                                if (asyncResult.succeeded() && asyncResult.result())
+                                {
+                                    LOGGER.info("All verticles are deployed successfully...");
+                                }
+                                else
+                                {
+                                    LOGGER.error(asyncResult.cause().getMessage(),asyncResult.cause().getStackTrace());
 
-                                VERTX.close();
-                            }
-                        }
-                    }
-                    else
-                    {
-                        LOGGER.error("Some issue occurred in configurations loading.." + asyncResult.cause()
-                                ,asyncResult.cause().getStackTrace());
+                                    VERTX.close();
+                                }
+                            });
+                }
+                else
+                {
+                    LOGGER.error(booleanAsyncResult.cause().getMessage(),booleanAsyncResult.cause().getStackTrace());
 
-                        VERTX.close();
-                    }
-                });
-            }
-            else
-            {
-                LOGGER.error("Some issue occurred in configurations loading.." + booleanAsyncResult.cause()
-                        ,booleanAsyncResult.cause().getStackTrace());
+                    VERTX.close();
+                }
+            });
+        }
+        catch (Exception exception)
+        {
+            LOGGER.error(exception.getMessage(),exception.getStackTrace());
 
-                VERTX.close();
-            }
-        });
+            VERTX.close();
+        }
     }
 }
