@@ -8,15 +8,8 @@ import io.vertx.core.AbstractVerticle;
 import io.vertx.core.json.JsonObject;
 
 /**
- * Description:
- * Author: Harsh Mehta
- * Date: 10/29/24 1:55 PM
- */
-
-
-/**
  * This class have logic of executing the db queries and return the result in async way.
- * this class only one that have execute the query.
+ * this class only one that have executed the query.
  * */
 
 public class DatabaseEngine extends AbstractVerticle

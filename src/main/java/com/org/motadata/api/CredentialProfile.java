@@ -12,12 +12,6 @@ import io.vertx.ext.web.Router;
 import io.vertx.ext.web.RoutingContext;
 
 /**
- * Description:
- * Author: Harsh Mehta
- * Date: 10/31/24 12:36 PM
- */
-
-/**
  * This class have logic for crud operations of credential profile.
  * */
 

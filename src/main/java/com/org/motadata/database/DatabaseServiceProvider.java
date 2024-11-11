@@ -1,10 +1,6 @@
 package com.org.motadata.database;
 
-/**
- * Description:
- * Author: Harsh Mehta
- * Date: 10/31/24 12:46 AM
- */
+
 
 import com.org.motadata.Bootstrap;
 import com.org.motadata.constant.Constants;

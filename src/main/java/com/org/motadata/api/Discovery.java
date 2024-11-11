@@ -13,16 +13,9 @@ import io.vertx.core.json.JsonObject;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.RoutingContext;
 
-/**
- * Description:
- * Author: Harsh Mehta
- * Date: 10/29/24 1:54 PM
- */
-
 
 /**
  * This class have logic for crud operations of discovery profile.
- *
  * I also added api for provision and discovery run here.
  * */
 

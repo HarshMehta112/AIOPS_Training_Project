@@ -1,7 +1,6 @@
 package com.org.motadata.service;
 
 import com.org.motadata.Bootstrap;
-import com.org.motadata.utils.CommonUtil;
 import com.org.motadata.constant.Constants;
 import com.org.motadata.utils.ConfigLoaderUtil;
 import com.org.motadata.utils.HandleRequestUtil;
@@ -18,22 +17,14 @@ import java.util.Map;
 import java.util.Random;
 
 /**
- * Description:
- * Author: Harsh Mehta
- * Date: 11/4/24 10:21 AM
- */
-
-/**
  * For metric polling I implemented config logic and storing into one hashmap of monitorId=consumerName
- *
  * to do that after processing db data (select * from tbl_monitor) it will create consumerName = JsonArray of monitor Ids
- *
  * and send to particular consumer.
  * */
 
 public class PollingRouter extends AbstractVerticle
 {
-    private static final LoggerUtil LOGGER = new LoggerUtil(CommonUtil.class);
+    private static final LoggerUtil LOGGER = new LoggerUtil(PollingRouter.class);
 
     private static final Map<Integer,String> monitorIdToConsumer = new HashMap<>();
 

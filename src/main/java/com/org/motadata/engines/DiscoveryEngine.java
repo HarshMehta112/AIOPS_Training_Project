@@ -23,58 +23,57 @@ public class DiscoveryEngine extends AbstractVerticle
     {
 
         Bootstrap.getVertx().eventBus().<JsonArray>localConsumer(Constants.DISCOVERY_RUN_REQUEST,jsonArrayMessage ->
-        {
-            Bootstrap.getVertx().executeBlocking(() ->
-            {
-                try
+
+                Bootstrap.getVertx().executeBlocking(() ->
                 {
-                    var discoveryResultContext = PluginExecutorUtil.executePlugin(jsonArrayMessage.body()).getJsonObject(0);
-
-                    var discoveryId = discoveryResultContext.getString(Constants.DISCOVERY_ID);
-
-                    var discoveryResult = discoveryResultContext.getString(Constants.STATUS);
-
-                    if(discoveryResult != null)
+                    try
                     {
-                        var queryBuildContext = new JsonObject();
+                        var discoveryResultContext = PluginExecutorUtil.executePlugin(jsonArrayMessage.body()).getJsonObject(0);
 
-                        queryBuildContext.put(Constants.DB_OPERATION_TYPE, Constants.UPDATE_OPERATION)
-                                .put(Constants.DB_TABLE_NAME, Constants.DISCOVERY_PROFILE_TABLE)
-                                .put(Constants.DB_CONDITIONS, CommonUtil
-                                        .buildString(Constants.ID, " = ", discoveryId))
-                                .put(Constants.DB_VALUES, new JsonObject()
-                                .put(Constants.DISCOVERED_FLAG, discoveryResult.equals("success")));
+                        var discoveryId = discoveryResultContext.getString(Constants.DISCOVERY_ID);
 
-                        Bootstrap.getVertx().eventBus().<String>request(Constants.QUERY_BUILD_REQUEST,
-                                queryBuildContext, queryBuilderReply ->
+                        var discoveryResult = discoveryResultContext.getString(Constants.STATUS);
+
+                        if(discoveryResult != null)
                         {
-                            if (queryBuilderReply.succeeded())
-                            {
-                                queryBuildContext.put(Constants.QUERY, queryBuilderReply.result().body());
+                            var queryBuildContext = new JsonObject();
 
-                                Bootstrap.getVertx().eventBus().<Boolean>request(Constants.DB_REQUESTS,
-                                        queryBuildContext, dbOperationReply ->
+                            queryBuildContext.put(Constants.DB_OPERATION_TYPE, Constants.UPDATE_OPERATION)
+                                    .put(Constants.DB_TABLE_NAME, Constants.DISCOVERY_PROFILE_TABLE)
+                                    .put(Constants.DB_CONDITIONS, CommonUtil
+                                            .buildString(Constants.ID, " = ", discoveryId))
+                                    .put(Constants.DB_VALUES, new JsonObject()
+                                    .put(Constants.DISCOVERED_FLAG, discoveryResult.equals("success")));
+
+                            Bootstrap.getVertx().eventBus().<String>request(Constants.QUERY_BUILD_REQUEST,
+                                    queryBuildContext, queryBuilderReply ->
+                            {
+                                if (queryBuilderReply.succeeded())
                                 {
-                                    if(Boolean.TRUE.equals(dbOperationReply.result().body()))
+                                    queryBuildContext.put(Constants.QUERY, queryBuilderReply.result().body());
+
+                                    Bootstrap.getVertx().eventBus().<Boolean>request(Constants.DB_REQUESTS,
+                                            queryBuildContext, dbOperationReply ->
                                     {
-                                        Bootstrap.getVertx().eventBus().send(jsonArrayMessage.replyAddress(),discoveryResult);
-                                    }
-                                    else
-                                    {
-                                        Bootstrap.getVertx().eventBus().send(jsonArrayMessage.replyAddress(),discoveryResult);
-                                    }
-                                });
-                            }
-                        });
+                                        if(Boolean.TRUE.equals(dbOperationReply.result().body()))
+                                        {
+                                            Bootstrap.getVertx().eventBus().send(jsonArrayMessage.replyAddress(),discoveryResult);
+                                        }
+                                        else
+                                        {
+                                            Bootstrap.getVertx().eventBus().send(jsonArrayMessage.replyAddress(),discoveryResult);
+                                        }
+                                    });
+                                }
+                            });
+                        }
                     }
-                }
-                catch (Exception exception)
-                {
-                    LOGGER.error(exception.getMessage(),exception.getStackTrace());
-                }
-                return null;
-            });
-        });
+                    catch (Exception exception)
+                    {
+                        LOGGER.error(exception.getMessage(),exception.getStackTrace());
+                    }
+                    return null;
+                }));
 
     }
 }
