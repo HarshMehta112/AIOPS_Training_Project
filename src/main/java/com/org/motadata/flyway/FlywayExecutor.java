@@ -24,14 +24,23 @@ public class FlywayExecutor
 
         try
         {
+            // Extract the database config object once
+            var dbConfig = ConfigLoaderUtil.getConfigs().getJsonObject(Constants.DB_CONFIG);
+
+            // Build the connection string using the extracted dbConfig
+            var connectionString = CommonUtil.buildString(
+                    "jdbc:postgresql://",
+                    dbConfig.getString(Constants.HOST), ":",
+                    dbConfig.getString(Constants.PORT),
+                    "/", dbConfig.getString(Constants.DATABASE)
+            );
+
+            // Configure Flyway with optimized parameters
             var flyway = Flyway.configure()
-                    .dataSource(CommonUtil.buildString("jdbc:postgresql://"
-                                    ,ConfigLoaderUtil.getConfigs().getJsonObject(Constants.DB_CONFIG).getString(Constants.HOST),":",
-                                    ConfigLoaderUtil.getConfigs().getJsonObject(Constants.DB_CONFIG).getString(Constants.PORT)
-                                    ,"/",ConfigLoaderUtil.getConfigs().getJsonObject(Constants.DB_CONFIG).getString(Constants.DATABASE)),
-                            ConfigLoaderUtil.getConfigs().getJsonObject(Constants.DB_CONFIG).getString(Constants.USER_NAME),
-                            ConfigLoaderUtil.getConfigs().getJsonObject(Constants.DB_CONFIG).getString(Constants.PASSWORD))
-                    .locations("filesystem:"+ Constants.RESOURCES_PATH +"/db.migration/")
+                    .dataSource(connectionString,
+                            dbConfig.getString(Constants.USER_NAME),
+                            dbConfig.getString(Constants.PASSWORD))
+                    .locations("filesystem:" + Constants.RESOURCES_PATH + "/db.migration/")
                     .schemas("public")
                     .load();
 
