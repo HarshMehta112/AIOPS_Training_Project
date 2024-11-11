@@ -32,20 +32,42 @@ public class MetricPollingEngine extends AbstractVerticle
 
     private static final HashMap<Integer,String> credentialContext = new HashMap<>();
 
+    public static HashMap<Integer, String> getCredentialContext()
+    {
+        return credentialContext;
+    }
+
     @Override
-    public void start()
+    public void start(Promise<Void> startPromise)
     {
         var consumerId = config().getString(Constants.ROUTING_KEY);
 
-        vertx.eventBus().<ArrayList<Integer>>localConsumer(consumerId, metricPollRequest ->
+        try
         {
-            var monitorIds = metricPollRequest.body();
-
-            if(!monitorIds.isEmpty())
+            vertx.eventBus().<ArrayList<Integer>>localConsumer(consumerId, metricPollRequest ->
             {
-                processRequests(monitorIds);
-            }
-        }).exceptionHandler(exception->LOGGER.error(exception.getMessage(),exception.getStackTrace()));
+                var monitorIds = metricPollRequest.body();
+
+                if(!monitorIds.isEmpty())
+                {
+                    processRequests(monitorIds);
+                }
+            }).exceptionHandler(exception->
+            {
+                LOGGER.error(exception.getMessage(),exception.getStackTrace());
+
+                startPromise.fail(exception);
+            });
+
+            startPromise.complete();
+        }
+        catch (Exception exception)
+        {
+            LOGGER.error(exception.getMessage(),exception.getStackTrace());
+
+            startPromise.fail(exception);
+        }
+
     }
 
     private Future<Boolean> updateCredentialContext(ArrayList<Integer> monitorIds)
@@ -68,6 +90,8 @@ public class MetricPollingEngine extends AbstractVerticle
             {
                 condition.setLength(condition.length() - 4);
             }
+
+            LOGGER.info(credentialContext.toString());
 
             if(!condition.isEmpty())
             {

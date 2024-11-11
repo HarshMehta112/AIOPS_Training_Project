@@ -55,38 +55,49 @@ public class ConfigLoaderUtil
     {
         var promise = Promise.<Boolean>promise();
 
-        loadConfig(Constants.RESOURCES_PATH+
-                Constants.PATH_SEPARATOR+Constants.CONFIG_FILE).onComplete(configHandler->
+        try
         {
-            if(configHandler.succeeded())
+            loadConfig(Constants.RESOURCES_PATH+
+                    Constants.PATH_SEPARATOR+Constants.CONFIG_FILE).onComplete(configHandler->
             {
-                var configs = configHandler.result();
-
-                setConfigs(configs);
-
-                setUpJWTAuth(configs);
-
-                DatabaseService databaseServiceProxy = DatabaseService.createProxy(Bootstrap.getVertx(),
-                        "database.service.address");
-
-                setDatabaseServiceProxy(databaseServiceProxy);
-
-                FlywayExecutor.executeDbMigration().onComplete(migrator->
+                if(configHandler.succeeded())
                 {
-                    if(migrator.succeeded())
-                    {
-                        LOGGER.info("configurations loaded and setting up of configurations completed..");
-                    }
-                    else
-                    {
-                        LOGGER.error("Some issue occurred in db migration "+
-                                migrator.cause(), migrator.cause().getStackTrace());
-                    }
-                });
+                    var configs = configHandler.result();
 
-                promise.complete(true);
-            }
-        });
+                    setConfigs(ConfigHelperUtil.getConfigJson(configs.toString()));
+
+                    LOGGER.info(getConfigs().encodePrettily());
+
+                    setUpJWTAuth(configs);
+
+                    DatabaseService databaseServiceProxy = DatabaseService.createProxy(Bootstrap.getVertx(),
+                            "database.service.address");
+
+                    setDatabaseServiceProxy(databaseServiceProxy);
+
+                    FlywayExecutor.executeDbMigration().onComplete(migrator->
+                    {
+                        if(migrator.succeeded())
+                        {
+                            LOGGER.info("configurations loaded and setting up of configurations completed..");
+                        }
+                        else
+                        {
+                            LOGGER.error("Some issue occurred in db migration "+
+                                    migrator.cause(), migrator.cause().getStackTrace());
+                        }
+                    });
+
+                    promise.complete(true);
+                }
+            });
+        }
+        catch (Exception exception)
+        {
+            LOGGER.error(exception.getMessage(),exception.getStackTrace());
+
+            promise.fail(exception);
+        }
 
         return promise.future();
     }

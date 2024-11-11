@@ -6,6 +6,7 @@ import com.org.motadata.constant.Constants;
 import com.org.motadata.utils.LoggerUtil;
 import com.org.motadata.utils.PluginExecutorUtil;
 import io.vertx.core.AbstractVerticle;
+import io.vertx.core.Promise;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 
@@ -19,7 +20,7 @@ public class DiscoveryEngine extends AbstractVerticle
     private static final LoggerUtil LOGGER = new LoggerUtil(DatabaseEngine.class);
 
     @Override
-    public void start()
+    public void start(Promise<Void> startPromise)
     {
 
         Bootstrap.getVertx().eventBus().<JsonArray>localConsumer(Constants.DISCOVERY_RUN_REQUEST,jsonArrayMessage ->
@@ -72,7 +73,16 @@ public class DiscoveryEngine extends AbstractVerticle
                     {
                         LOGGER.error(exception.getMessage(),exception.getStackTrace());
                     }
+
                     return null;
-                }));
+
+                })).exceptionHandler(exception ->
+                {
+                    LOGGER.error(exception.getMessage(),exception.getStackTrace());
+
+                    startPromise.fail(exception);
+                });
+
+        startPromise.complete();
     }
 }

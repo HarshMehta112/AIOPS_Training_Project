@@ -5,6 +5,7 @@ import com.org.motadata.utils.ConfigLoaderUtil;
 import com.org.motadata.constant.Constants;
 import com.org.motadata.utils.LoggerUtil;
 import io.vertx.core.AbstractVerticle;
+import io.vertx.core.Promise;
 
 import java.util.HashMap;
 
@@ -18,7 +19,7 @@ public class PollingTrigger extends AbstractVerticle
     private static final LoggerUtil LOGGER = new LoggerUtil(PollingTrigger.class);
 
     @Override
-    public void start()
+    public void start(Promise<Void> startPromise)
     {
         var scheduleTime = new HashMap<String,Long>();
 
@@ -59,7 +60,11 @@ public class PollingTrigger extends AbstractVerticle
             catch (Exception exception)
             {
                LOGGER.error(exception.getMessage(),exception.getStackTrace());
+
+               startPromise.fail(exception);
             }
         });
+
+        startPromise.complete();
     }
 }

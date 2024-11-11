@@ -87,43 +87,56 @@ public class DatabaseServiceImpl implements DatabaseService
     @Override
     public DatabaseService batchInsertMetrics(JsonArray batchContext, Handler<AsyncResult<Void>> resultHandler)
     {
-        // Prepare a list of tuples for batch execution
-        var batch = new ArrayList<Tuple>();
-
-        for (var index=0; index<batchContext.size(); index++)
+        if(CommonUtil.isNonNull.test(batchContext))
         {
-            var context = batchContext.getJsonObject(index);
+            // Prepare a list of tuples for batch execution
+            var batch = new ArrayList<Tuple>();
 
-            var monitorId = context.getInteger(Constants.MONITOR_ID);
-
-            context.remove(Constants.MONITOR_ID);
-
-            for (var entry : context)
+            for (var index=0; index<batchContext.size(); index++)
             {
-                var metricName = entry.getKey();
+                var context = batchContext.getJsonObject(index);
 
-                var metricValue = entry.getValue();
+                if(CommonUtil.isNonNull.test(context) && !context.isEmpty())
+                {
+                    var monitorId = context.getInteger(Constants.MONITOR_ID);
 
-                // Add to the batch
-                batch.add(Tuple.of(monitorId, metricName, metricValue.toString())); // Convert value to String
+                    context.remove(Constants.MONITOR_ID);
+
+                    for (var entry : context)
+                    {
+                        var metricName = entry.getKey();
+
+                        var metricValue = entry.getValue();
+
+                        // Add to the batch
+                        batch.add(Tuple.of(monitorId, metricName, metricValue.toString())); // Convert value to String
+                    }
+                }
+            }
+
+            if (!batch.isEmpty())
+            {
+                // Execute the batch insert
+                pool.withConnection(connection -> connection
+                        .preparedQuery(Constants.METRIC_INSERT_QUERY)
+                        .executeBatch(batch)
+                        .onComplete(res ->
+                        {
+                            if (res.succeeded())
+                            {
+                                resultHandler.handle(Future.succeededFuture());
+                            }
+                            else
+                            {
+                                resultHandler.handle(Future.failedFuture(res.cause()));
+                            }
+                        }));
+            }
+            else
+            {
+                resultHandler.handle(Future.succeededFuture());
             }
         }
-
-        // Execute the batch insert
-        pool.withConnection(connection -> connection
-                .preparedQuery(Constants.METRIC_INSERT_QUERY)
-                .executeBatch(batch)
-                .onComplete(res ->
-                {
-                    if (res.succeeded())
-                    {
-                        resultHandler.handle(Future.succeededFuture());
-                    }
-                    else
-                    {
-                        resultHandler.handle(Future.failedFuture(res.cause()));
-                    }
-                }));
 
         return this;
     }

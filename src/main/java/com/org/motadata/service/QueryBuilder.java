@@ -5,6 +5,7 @@ import com.org.motadata.utils.CommonUtil;
 import com.org.motadata.constant.Constants;
 import com.org.motadata.utils.LoggerUtil;
 import io.vertx.core.AbstractVerticle;
+import io.vertx.core.Promise;
 import io.vertx.core.json.JsonObject;
 
 import java.util.ArrayList;
@@ -20,7 +21,7 @@ public class QueryBuilder extends AbstractVerticle
     private static final LoggerUtil LOGGER = new LoggerUtil(QueryBuilder.class);
 
     @Override
-    public void start()
+    public void start(Promise<Void> startPromise)
     {
         Bootstrap.getVertx().eventBus().<JsonObject>localConsumer(Constants.QUERY_BUILD_REQUEST, handler ->
 
@@ -42,6 +43,8 @@ public class QueryBuilder extends AbstractVerticle
                     catch (Exception exception)
                     {
                         LOGGER.error(exception.getMessage(),exception.getStackTrace());
+
+                        startPromise.fail(exception);
                     }
 
                     return null;
@@ -57,7 +60,14 @@ public class QueryBuilder extends AbstractVerticle
                         LOGGER.error("Some issue in building query .." + asyncResult.cause().getMessage()
                                 , asyncResult.cause().getStackTrace());
                     }
-                })).exceptionHandler(exceptionHandler->LOGGER.error(exceptionHandler.getMessage(),exceptionHandler.getStackTrace()));
+                })).exceptionHandler(exceptionHandler->
+                {
+                    LOGGER.error(exceptionHandler.getMessage(),exceptionHandler.getStackTrace());
+
+                    startPromise.fail(exceptionHandler.getCause());
+                });
+
+        startPromise.complete();
     }
 
     public String buildQuery(String operation, String table, JsonObject values, String conditions)

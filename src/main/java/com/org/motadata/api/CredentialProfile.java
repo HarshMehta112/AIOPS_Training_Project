@@ -1,5 +1,6 @@
 package com.org.motadata.api;
 
+import com.org.motadata.engines.MetricPollingEngine;
 import com.org.motadata.impl.CrudOperations;
 import com.org.motadata.impl.InitializeRouter;
 import com.org.motadata.utils.CipherUtil;
@@ -125,6 +126,8 @@ public class CredentialProfile implements InitializeRouter, CrudOperations
                 HandleRequestUtil.handleModificationRequest(queryBuildContext,routingContext,
                         "Credential Profile updated successfully...",
                         "Credential Profile not updated. Please try again...");
+
+                CommonUtil.updateInMemoryCredentials(credentialId);
             }
             else
             {
@@ -162,6 +165,9 @@ public class CredentialProfile implements InitializeRouter, CrudOperations
             HandleRequestUtil.handleModificationRequest(queryBuildContext,routingContext,
                     "Credential Profile deleted successfully...",
                     "Credential Profile not deleted. Please try again...");
+
+            CommonUtil.updateInMemoryCredentials(credentialId);
+
         }
         catch (Exception exception)
         {

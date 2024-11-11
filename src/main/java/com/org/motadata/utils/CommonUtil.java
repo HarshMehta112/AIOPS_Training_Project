@@ -1,6 +1,7 @@
 package com.org.motadata.utils;
 
 import com.org.motadata.constant.Constants;
+import com.org.motadata.engines.MetricPollingEngine;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import java.util.Map;
@@ -57,7 +58,8 @@ public class CommonUtil
                         buildString(deviceContext.getString(Constants.IP_ADDRESS),Constants.VALUE_SEPARATOR,
                                 deviceContext.getString(Constants.PORT),Constants.VALUE_SEPARATOR,
                                 deviceContext.getString(Constants.SSH_USERNAME),Constants.VALUE_SEPARATOR,
-                                deviceContext.getString(Constants.SSH_PASSWORD)));
+                                deviceContext.getString(Constants.SSH_PASSWORD),Constants.VALUE_SEPARATOR,
+                                deviceContext.getString(Constants.CREDENTIAL_ID)));
             }
         }
         catch (Exception exception)
@@ -80,6 +82,17 @@ public class CommonUtil
         }
 
         return result;
+    }
+
+    public static void updateInMemoryCredentials(String credentialId)
+    {
+        for (var entry : MetricPollingEngine.getCredentialContext().entrySet())
+        {
+            if(entry.getValue().split(Constants.VALUE_SEPARATOR_WITH_ESCAPE)[4].equals(credentialId))
+            {
+                MetricPollingEngine.getCredentialContext().remove(entry.getKey());
+            }
+        }
     }
 
 }

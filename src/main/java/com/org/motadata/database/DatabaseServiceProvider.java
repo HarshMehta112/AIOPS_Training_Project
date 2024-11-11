@@ -7,6 +7,7 @@ import com.org.motadata.constant.Constants;
 import com.org.motadata.utils.ConfigLoaderUtil;
 import com.org.motadata.utils.LoggerUtil;
 import io.vertx.core.AbstractVerticle;
+import io.vertx.core.Promise;
 import io.vertx.core.json.JsonObject;
 import io.vertx.core.net.PemTrustOptions;
 import io.vertx.pgclient.SslMode;
@@ -16,7 +17,8 @@ import io.vertx.sqlclient.PoolOptions;
 import io.vertx.pgclient.PgConnectOptions;
 
 
-public class DatabaseServiceProvider extends AbstractVerticle {
+public class DatabaseServiceProvider extends AbstractVerticle
+{
 
     private static final LoggerUtil LOGGER = new LoggerUtil(DatabaseServiceProvider.class);
 
@@ -45,7 +47,7 @@ public class DatabaseServiceProvider extends AbstractVerticle {
     private static final Pool POOL = Pool.pool(Bootstrap.getVertx(), CONNECT_OPTIONS, POOL_OPTIONS);
 
     @Override
-    public void start()
+    public void start(Promise<Void> startPromise)
     {
         DatabaseService.create(POOL, result ->
         {
@@ -65,8 +67,12 @@ public class DatabaseServiceProvider extends AbstractVerticle {
             catch (Exception exception)
             {
                 LOGGER.error(exception.getMessage(),exception.getStackTrace());
+
+                startPromise.fail(exception);
             }
         });
+
+        startPromise.complete();
     }
 }
 

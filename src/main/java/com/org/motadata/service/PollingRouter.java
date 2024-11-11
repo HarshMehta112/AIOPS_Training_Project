@@ -31,7 +31,7 @@ public class PollingRouter extends AbstractVerticle
     private static final Map<String,ArrayList<Integer>> consumerAddressToDevices = new HashMap<>();
 
     @Override
-    public void start()
+    public void start(Promise<Void> startPromise)
     {
         Bootstrap.getVertx().eventBus().<String>localConsumer(Constants.POLLING_REQUESTS, pollRequest ->
         {
@@ -39,36 +39,52 @@ public class PollingRouter extends AbstractVerticle
 
             Bootstrap.getVertx().executeBlocking(() ->
             {
-                switch (pollRequestType)
+                try
                 {
-                    case Constants.AVAILIBILITY_POLLING_TIME -> getDeviceData().onComplete(handler->
+                    switch (pollRequestType)
                     {
-                        try
+                        case Constants.AVAILIBILITY_POLLING_TIME -> getDeviceData().onComplete(handler->
                         {
-                            if(handler.succeeded())
+                            try
                             {
-                                Bootstrap.getVertx().eventBus().send(Constants.AVAILIBILITY_POLLING_REQUESTS,handler.result());
+                                if(handler.succeeded())
+                                {
+                                    Bootstrap.getVertx().eventBus().send(Constants.AVAILIBILITY_POLLING_REQUESTS,handler.result());
+                                }
+                                else
+                                {
+                                    LOGGER.error(handler.cause().getMessage(),handler.cause().getStackTrace());
+                                }
                             }
-                            else
+                            catch (Exception exception)
                             {
-                                LOGGER.error(handler.cause().getMessage(),handler.cause().getStackTrace());
+                                LOGGER.error(exception.getMessage(),exception.getStackTrace());
                             }
-                        }
-                        catch (Exception exception)
-                        {
-                            LOGGER.error(exception.getMessage(),exception.getStackTrace());
-                        }
-                    });
+                        });
 
-                    case Constants.METRIC_POLLING_TIME -> metricPollRequestHandler();
+                        case Constants.METRIC_POLLING_TIME -> metricPollRequestHandler();
 
-                    default -> throw new IllegalArgumentException("Wrong polling request type");
+                        default -> throw new IllegalArgumentException("Wrong polling request type");
+                    }
+                }
+                catch (Exception exception)
+                {
+                    LOGGER.error(exception.getMessage(),exception.getStackTrace());
+
+                    startPromise.fail(exception);
                 }
 
                 return null;
             });
 
-        }).exceptionHandler(exception->LOGGER.error(exception.getMessage(), exception.getStackTrace()));
+        }).exceptionHandler(exception->
+        {
+            LOGGER.error(exception.getMessage(), exception.getStackTrace());
+
+            startPromise.fail(exception);
+        });
+
+        startPromise.complete();
     }
 
 

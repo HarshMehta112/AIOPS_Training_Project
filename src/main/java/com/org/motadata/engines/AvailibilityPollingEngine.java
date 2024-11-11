@@ -7,6 +7,7 @@ import com.org.motadata.utils.ConfigLoaderUtil;
 import com.org.motadata.utils.LoggerUtil;
 import com.org.motadata.utils.PluginExecutorUtil;
 import io.vertx.core.AbstractVerticle;
+import io.vertx.core.Promise;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 
@@ -24,7 +25,7 @@ public class AvailibilityPollingEngine extends AbstractVerticle
     private static final LoggerUtil LOGGER = new LoggerUtil(AvailibilityPollingEngine.class);
 
     @Override
-    public void start()
+    public void start(Promise<Void> startPromise)
     {
         Bootstrap.getVertx().eventBus().<JsonArray>localConsumer
                 (Constants.AVAILIBILITY_POLLING_REQUESTS, availibilityPollRequest ->
@@ -35,7 +36,14 @@ public class AvailibilityPollingEngine extends AbstractVerticle
                             {
                                 processRequests(availibilityPollContext);
                             }
-                        }).exceptionHandler(exception->LOGGER.error(exception.getMessage(),exception.getStackTrace()));
+                        }).exceptionHandler(exception->
+                        {
+                            LOGGER.error(exception.getMessage(),exception.getStackTrace());
+
+                            startPromise.fail(exception);
+                        });
+
+        startPromise.complete();
     }
 
     private void processRequests(JsonArray pollRequestContext)

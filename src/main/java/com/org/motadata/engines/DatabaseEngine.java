@@ -5,6 +5,7 @@ import com.org.motadata.utils.ConfigLoaderUtil;
 import com.org.motadata.constant.Constants;
 import com.org.motadata.utils.LoggerUtil;
 import io.vertx.core.AbstractVerticle;
+import io.vertx.core.Promise;
 import io.vertx.core.json.JsonObject;
 
 /**
@@ -17,7 +18,7 @@ public class DatabaseEngine extends AbstractVerticle
     private static final LoggerUtil LOGGER = new LoggerUtil(DatabaseEngine.class);
 
     @Override
-    public void start()
+    public void start(Promise<Void> startPromise)
     {
         Bootstrap.getVertx().eventBus().<JsonObject>localConsumer(Constants.DB_REQUESTS, handler ->
 
@@ -86,6 +87,13 @@ public class DatabaseEngine extends AbstractVerticle
 
                     return null;
 
-                },false)).exceptionHandler(exceptionHandler->LOGGER.error(exceptionHandler.getMessage(),exceptionHandler.getStackTrace()));
+                },false)).exceptionHandler(exception->
+                {
+                    LOGGER.error(exception.getMessage(),exception.getStackTrace());
+
+                    startPromise.fail(exception);
+                });
+
+        startPromise.complete();
     }
 }
