@@ -20,13 +20,13 @@ public class ConfigHelperUtil
     private String username = "admin";
 
     @JsonProperty("password")
-    private String password = "admin";
+    private String password = "Ck8ADQ5qyMRguRLYb/baqQ==";
 
     @JsonProperty("sslKeyStorePath")
     private String sslKeyStorePath = "/home/harsh/AIOPS_Training/keystore.jks";
 
     @JsonProperty("sslKeyStorePassword")
-    private String sslKeyStorePassword = "Mind@123";
+    private String sslKeyStorePassword = "r1LNQe0KrM//z0pVLq0UCw==";
 
     @JsonProperty("metricPollTime")
     private int metricPollTime = 12000;
@@ -60,7 +60,7 @@ public class ConfigHelperUtil
         private String username = "harsh";
 
         @JsonProperty("password")
-        private String password = "Mind@123";
+        private String password = "r1LNQe0KrM//z0pVLq0UCw==";
 
         @JsonProperty("maxConnections")
         private int maxConnections = 5;

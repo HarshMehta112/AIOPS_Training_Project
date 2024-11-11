@@ -3,6 +3,7 @@ package com.org.motadata.api;
 import com.org.motadata.Bootstrap;
 import com.org.motadata.constant.Constants;
 import com.org.motadata.utils.AuthenticationUtil;
+import com.org.motadata.utils.CipherUtil;
 import com.org.motadata.utils.ConfigLoaderUtil;
 import com.org.motadata.utils.LoggerUtil;
 import io.vertx.core.AbstractVerticle;
@@ -64,7 +65,7 @@ public class ApiServer extends AbstractVerticle
             var httpServer = Bootstrap.getVertx().createHttpServer(new HttpServerOptions()
                     .setSsl(true).setKeyCertOptions(new JksOptions().setPath(ConfigLoaderUtil.getConfigs()
                                     .getString(Constants.SSL_KEYSTORE_PATH))
-                            .setPassword(ConfigLoaderUtil.getConfigs().getString(Constants.SSL_KEYSTORE_PASSWORD))));
+                            .setPassword(CipherUtil.decrypt(ConfigLoaderUtil.getConfigs().getString(Constants.SSL_KEYSTORE_PASSWORD)))));
 
             httpServer.requestHandler(apiRouter)
                     .exceptionHandler(handler->LOGGER.error(handler.getMessage(),handler.getStackTrace()))

@@ -129,7 +129,7 @@ public class Constants
 
     public static final String STATUS = "status";
 
-    public static final String DISCOVERY_PROVISION_SP = "CALL insert_into_monitor(###)";
+    public static final String DISCOVERY_PROVISION_SP = "CALL insert_into_monitor(###);";
 
     public static final String AVAILIBILITY_POLLING_TIME = "availibilityPollTime";
 

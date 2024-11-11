@@ -4,6 +4,7 @@ package com.org.motadata.database;
 
 import com.org.motadata.Bootstrap;
 import com.org.motadata.constant.Constants;
+import com.org.motadata.utils.CipherUtil;
 import com.org.motadata.utils.ConfigLoaderUtil;
 import com.org.motadata.utils.LoggerUtil;
 import io.vertx.core.AbstractVerticle;
@@ -31,7 +32,7 @@ public class DatabaseServiceProvider extends AbstractVerticle
             .setHost(DB_CONFIG.getString(Constants.HOST))
             .setDatabase(DB_CONFIG.getString(Constants.DATABASE))
             .setUser(DB_CONFIG.getString(Constants.USER_NAME))
-            .setPassword(DB_CONFIG.getString(Constants.PASSWORD))
+            .setPassword(CipherUtil.decrypt(DB_CONFIG.getString(Constants.PASSWORD)))
             .setReconnectAttempts(3)
             .setReconnectInterval(2000L)
             .setSsl(true)

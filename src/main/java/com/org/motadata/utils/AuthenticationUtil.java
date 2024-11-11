@@ -36,7 +36,7 @@ public class AuthenticationUtil
 
         var loginUsername = Optional.ofNullable(ConfigLoaderUtil.getConfigs().getString(Constants.USER_NAME));
 
-        var loginPassword = Optional.ofNullable(ConfigLoaderUtil.getConfigs().getString(Constants.PASSWORD));
+        var loginPassword = Optional.ofNullable(CipherUtil.decrypt(ConfigLoaderUtil.getConfigs().getString(Constants.PASSWORD)));
 
         Predicate<String> isUsernameValid = user -> user.equals(username);
 

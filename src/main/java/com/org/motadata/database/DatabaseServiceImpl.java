@@ -39,22 +39,22 @@ public class DatabaseServiceImpl implements DatabaseService
         if (CommonUtil.isNonNull.test(params))
         {
             params.forEach(entry -> tuple.addValue(entry.getValue()));
-
-            pool.withConnection(connection -> connection
-                    .preparedQuery(query)
-                    .execute(tuple)
-                    .onComplete(result ->
-                    {
-                        if (result.succeeded())
-                        {
-                            resultHandler.handle(Future.succeededFuture());
-                        }
-                        else
-                        {
-                            resultHandler.handle(Future.failedFuture(result.cause()));
-                        }
-                    }));
         }
+
+        pool.withConnection(connection -> connection
+                .preparedQuery(query)
+                .execute(tuple)
+                .onComplete(result ->
+                {
+                    if (result.succeeded())
+                    {
+                        resultHandler.handle(Future.succeededFuture());
+                    }
+                    else
+                    {
+                        resultHandler.handle(Future.failedFuture(result.cause()));
+                    }
+                }));
 
         return this;
     }

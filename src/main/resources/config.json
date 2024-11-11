@@ -2,9 +2,9 @@
   "publicKeyPath": "/home/harsh/AIOPS_Training/public-key.pem",
   "privateKeyPath": "/home/harsh/AIOPS_Training/private-key.pem",
   "username": "admin",
-  "password": "admin",
+  "password": "Ck8ADQ5qyMRguRLYb/baqQ==",
   "sslKeyStorePath": "/home/harsh/AIOPS_Training/keystore.jks",
-  "sslKeyStorePassword": "Mind@123",
+  "sslKeyStorePassword": "r1LNQe0KrM//z0pVLq0UCw==",
   "metricPollTime": 12000,
   "availibilityPollTime": 6000,
   "db": {
@@ -12,7 +12,7 @@
     "port": 5432,
     "database": "postgres",
     "username": "harsh",
-    "password": "Mind@123",
+    "password": "r1LNQe0KrM//z0pVLq0UCw==",
     "maxConnections": 5
   },
   "httpServerPort": 8443,

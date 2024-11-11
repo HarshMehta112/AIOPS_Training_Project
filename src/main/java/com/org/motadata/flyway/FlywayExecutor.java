@@ -1,6 +1,7 @@
 package com.org.motadata.flyway;
 
 import com.org.motadata.constant.Constants;
+import com.org.motadata.utils.CipherUtil;
 import com.org.motadata.utils.CommonUtil;
 import com.org.motadata.utils.ConfigLoaderUtil;
 import com.org.motadata.utils.LoggerUtil;
@@ -39,7 +40,7 @@ public class FlywayExecutor
             var flyway = Flyway.configure()
                     .dataSource(connectionString,
                             dbConfig.getString(Constants.USER_NAME),
-                            dbConfig.getString(Constants.PASSWORD))
+                            CipherUtil.decrypt(dbConfig.getString(Constants.PASSWORD)))
                     .locations("filesystem:" + Constants.RESOURCES_PATH + "/db.migration/")
                     .schemas("public")
                     .load();
