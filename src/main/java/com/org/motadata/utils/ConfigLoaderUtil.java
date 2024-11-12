@@ -96,6 +96,10 @@ public class ConfigLoaderUtil
                         promise.complete(true);
                     }
                 }
+                else
+                {
+                    promise.fail("Null output from config.json file reading...");
+                }
             });
         }
         catch (Exception exception)
