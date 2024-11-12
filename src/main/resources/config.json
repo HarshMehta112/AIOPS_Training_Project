@@ -6,7 +6,7 @@
   "sslKeyStorePath": "/home/harsh/AIOPS_Training/keystore.jks",
   "sslKeyStorePassword": "r1LNQe0KrM//z0pVLq0UCw==",
   "metricPollTime": 12000,
-  "availibilityPollTime": 6000,
+  "availabilityPollTime": 6000,
   "db": {
     "host": "localhost",
     "port": 5432,
@@ -22,11 +22,11 @@
     "discoveryWorker": 2,
     "pollingRouterWorker": 2,
     "metricPollingInstances": 2,
-    "availibilityPollingWorker": 2,
+    "availabilityPollingWorker": 2,
     "metricPollingWorker": 2
   },
   "batchSizes": {
     "metricPollingBatchSize": 1,
-    "availibilityPollingBatchSize": 1
+    "availabilityPollingBatchSize": 1
   }
 }

@@ -43,13 +43,13 @@ public class PollingRouter extends AbstractVerticle
                 {
                     switch (pollRequestType)
                     {
-                        case Constants.AVAILIBILITY_POLLING_TIME -> getDeviceData().onComplete(handler->
+                        case Constants.AVAILABILITY_POLLING_TIME -> getDeviceData().onComplete(handler->
                         {
                             try
                             {
                                 if(handler.succeeded())
                                 {
-                                    Bootstrap.getVertx().eventBus().send(Constants.AVAILIBILITY_POLLING_REQUESTS,handler.result());
+                                    Bootstrap.getVertx().eventBus().send(Constants.AVAILABILITY_POLLING_REQUESTS,handler.result());
                                 }
                                 else
                                 {

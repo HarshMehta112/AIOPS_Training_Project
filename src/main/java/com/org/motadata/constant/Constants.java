@@ -91,7 +91,7 @@ public class Constants
 
     public static final String POLLING_REQUESTS = "polling.requests";
 
-    public static final String AVAILIBILITY_POLLING_REQUESTS = "availibility.polling.requests";
+    public static final String AVAILABILITY_POLLING_REQUESTS = "availability.polling.requests";
 
     public static final String METRIC_POLLING_REQUESTS = "metric.polling.requests.";
 
@@ -131,7 +131,7 @@ public class Constants
 
     public static final String DISCOVERY_PROVISION_SP = "CALL insert_into_monitor(###);";
 
-    public static final String AVAILIBILITY_POLLING_TIME = "availibilityPollTime";
+    public static final String AVAILABILITY_POLLING_TIME = "availabilityPollTime";
 
     public static final String METRIC_POLLING_TIME = "metricPollTime";
 
@@ -162,13 +162,13 @@ public class Constants
 
     public static final String POLLING_ROUTER_WORKER = "pollingRouterWorker";
 
-    public static final String AVAILIBILITY_POLLING_WORKER = "availibilityPollingWorker";
+    public static final String AVAILABILITY_POLLING_WORKER = "availabilityPollingWorker";
 
     public static final String METRIC_POLLING_WORKER = "metricPollingWorker";
 
     public static final String METRIC_POLLING_INSTANCES = "metricPollingInstances";
 
-    public static final String AVAILIBILITY_POLLING_BATCH = "availibilityPollingBatchSize";
+    public static final String AVAILABILITY_POLLING_BATCH = "availabilityPollingBatchSize";
 
     public static final String METRIC_POLLING_BATCH = "metricPollingBatchSize";
 

@@ -2,7 +2,7 @@ package com.org.motadata;
 
 import com.org.motadata.constant.Constants;
 import com.org.motadata.database.DatabaseServiceProvider;
-import com.org.motadata.engines.AvailibilityPollingEngine;
+import com.org.motadata.engines.AvailabilityPollingEngine;
 import com.org.motadata.engines.DatabaseEngine;
 import com.org.motadata.engines.DiscoveryEngine;
 import com.org.motadata.engines.MetricPollingEngine;
@@ -67,8 +67,8 @@ public class Bootstrap
                             VERTX.deployVerticle(PollingTrigger.class.getName())).compose(handler->
                             VERTX.deployVerticle(PollingRouter.class.getName(),
                                     new DeploymentOptions().setWorkerPoolSize(workers.getInteger(Constants.POLLING_ROUTER_WORKER)))).compose(handler->
-                            VERTX.deployVerticle(AvailibilityPollingEngine.class.getName(),
-                                    new DeploymentOptions().setWorkerPoolSize(workers.getInteger(Constants.AVAILIBILITY_POLLING_WORKER)))).compose(handler->
+                            VERTX.deployVerticle(AvailabilityPollingEngine.class.getName(),
+                                    new DeploymentOptions().setWorkerPoolSize(workers.getInteger(Constants.AVAILABILITY_POLLING_WORKER)))).compose(handler->
                             new VerticleDeployUtil(VERTX, Constants.METRIC_POLLING_REQUESTS, MetricPollingEngine.class.getName(),
                                     workers.getInteger(Constants.METRIC_POLLING_INSTANCES),
                                     workers.getInteger(Constants.METRIC_POLLING_WORKER)).deploy()).onComplete(asyncResult->

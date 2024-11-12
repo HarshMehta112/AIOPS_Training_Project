@@ -13,28 +13,28 @@ import io.vertx.core.json.JsonObject;
 
 
 /**
- * This class have logic availibility polling of devices.
+ * This class have logic availability polling of devices.
  * I made logic that get the all devices from db (select * from tbl_monitor), and after dividing
  * into batches (size of batch is configurable through properties file) and spawning go process
  * I write a logic that getting result from go is one by one not in bulk,
  * adding in array and doing bulk insert operation.
  * */
 
-public class AvailibilityPollingEngine extends AbstractVerticle
+public class AvailabilityPollingEngine extends AbstractVerticle
 {
-    private static final LoggerUtil LOGGER = new LoggerUtil(AvailibilityPollingEngine.class);
+    private static final LoggerUtil LOGGER = new LoggerUtil(AvailabilityPollingEngine.class);
 
     @Override
     public void start(Promise<Void> startPromise)
     {
         Bootstrap.getVertx().eventBus().<JsonArray>localConsumer
-                (Constants.AVAILIBILITY_POLLING_REQUESTS, availibilityPollRequest ->
+                (Constants.AVAILABILITY_POLLING_REQUESTS, availabilityPollRequest ->
                         {
-                            var availibilityPollContext = availibilityPollRequest.body();
+                            var availabilityPollContext = availabilityPollRequest.body();
 
-                            if(CommonUtil.isNonNull.test(availibilityPollContext))
+                            if(CommonUtil.isNonNull.test(availabilityPollContext))
                             {
-                                processRequests(availibilityPollContext);
+                                processRequests(availabilityPollContext);
                             }
                         }).exceptionHandler(exception->
                         {
@@ -51,7 +51,7 @@ public class AvailibilityPollingEngine extends AbstractVerticle
         while (pollRequestContext.size() > 0)
         {
             var batch = CommonUtil.getBatchedData(pollRequestContext,
-                    ConfigLoaderUtil.getConfigs().getJsonObject(Constants.POLLING_BATCH_CONFIG).getInteger(Constants.AVAILIBILITY_POLLING_BATCH));
+                    ConfigLoaderUtil.getConfigs().getJsonObject(Constants.POLLING_BATCH_CONFIG).getInteger(Constants.AVAILABILITY_POLLING_BATCH));
 
             Bootstrap.getVertx().executeBlocking(() ->
             {

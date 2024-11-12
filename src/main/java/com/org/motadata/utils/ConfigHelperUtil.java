@@ -31,8 +31,8 @@ public class ConfigHelperUtil
     @JsonProperty("metricPollTime")
     private int metricPollTime = 12000;
 
-    @JsonProperty("availibilityPollTime")
-    private int availibilityPollTime = 6000;
+    @JsonProperty("availabilityPollTime")
+    private int availabilityPollTime = 6000;
 
     @JsonProperty("httpServerPort")
     private int httpServerPort = 8443;
@@ -82,8 +82,8 @@ public class ConfigHelperUtil
         @JsonProperty("metricPollingInstances")
         private int metricPollingInstances = 2;
 
-        @JsonProperty("availibilityPollingWorker")
-        private int availibilityPollingWorker = 2;
+        @JsonProperty("availabilityPollingWorker")
+        private int availabilityPollingWorker = 2;
 
         @JsonProperty("metricPollingWorker")
         private int metricPollingWorker = 2;
@@ -94,8 +94,8 @@ public class ConfigHelperUtil
         @JsonProperty("metricPollingBatchSize")
         private int metricPollingBatchSize = 1;
 
-        @JsonProperty("availibilityPollingBatchSize")
-        private int availibilityPollingBatchSize = 1;
+        @JsonProperty("availabilityPollingBatchSize")
+        private int availabilityPollingBatchSize = 1;
     }
 
     public static JsonObject getConfigJson(String jsonString)

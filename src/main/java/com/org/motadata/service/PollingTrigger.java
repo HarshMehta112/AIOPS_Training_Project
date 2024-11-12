@@ -23,7 +23,7 @@ public class PollingTrigger extends AbstractVerticle
     {
         var scheduleTime = new HashMap<String,Long>();
 
-        scheduleTime.put(Constants.AVAILIBILITY_POLLING_TIME,ConfigLoaderUtil.getConfigs().getLong(Constants.AVAILIBILITY_POLLING_TIME));
+        scheduleTime.put(Constants.AVAILABILITY_POLLING_TIME,ConfigLoaderUtil.getConfigs().getLong(Constants.AVAILABILITY_POLLING_TIME));
 
         scheduleTime.put(Constants.METRIC_POLLING_TIME, ConfigLoaderUtil.getConfigs().getLong(Constants.METRIC_POLLING_TIME));
 
@@ -47,7 +47,7 @@ public class PollingTrigger extends AbstractVerticle
                         Bootstrap.getVertx().eventBus().send(Constants.POLLING_REQUESTS,
                                 entry.getKey().equals(Constants.METRIC_POLLING_TIME) ?
                                         Constants.METRIC_POLLING_TIME :
-                                        Constants.AVAILIBILITY_POLLING_TIME);
+                                        Constants.AVAILABILITY_POLLING_TIME);
 
                         updatedScheduleTime.put(entry.getKey(),scheduleTime.get(entry.getKey()));
                     }
