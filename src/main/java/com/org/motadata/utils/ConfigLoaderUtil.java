@@ -11,6 +11,10 @@ import io.vertx.ext.auth.PubSecKeyOptions;
 import io.vertx.ext.auth.jwt.JWTAuth;
 import io.vertx.ext.auth.jwt.JWTAuthOptions;
 
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.util.Objects;
+
 /**
  * Description:
  * Author: Harsh Mehta
@@ -57,38 +61,40 @@ public class ConfigLoaderUtil
 
         try
         {
-            loadConfig(Constants.RESOURCES_PATH+
-                    Constants.PATH_SEPARATOR+Constants.CONFIG_FILE).onComplete(configHandler->
+            Objects.requireNonNull(loadConfig()).onComplete(configHandler->
             {
                 if(configHandler.succeeded())
                 {
                     var configs = configHandler.result();
 
-                    setConfigs(ConfigHelperUtil.getConfigJson(configs.toString()));
-
-                    LOGGER.info(getConfigs().encodePrettily());
-
-                    setUpJWTAuth(configs);
-
-                    DatabaseService databaseServiceProxy = DatabaseService.createProxy(Bootstrap.getVertx(),
-                            "database.service.address");
-
-                    setDatabaseServiceProxy(databaseServiceProxy);
-
-                    FlywayExecutor.executeDbMigration().onComplete(migrator->
+                    if(CommonUtil.isNonNull.test(configs))
                     {
-                        if(migrator.succeeded())
-                        {
-                            LOGGER.info("configurations loaded and setting up of configurations completed..");
-                        }
-                        else
-                        {
-                            LOGGER.error("Some issue occurred in db migration "+
-                                    migrator.cause(), migrator.cause().getStackTrace());
-                        }
-                    });
+                        setConfigs(ConfigHelperUtil.getConfigJson(configs.toString()));
 
-                    promise.complete(true);
+                        LOGGER.info(getConfigs().encodePrettily());
+
+                        setUpJWTAuth(configs);
+
+                        DatabaseService databaseServiceProxy = DatabaseService.createProxy(Bootstrap.getVertx(),
+                                "database.service.address");
+
+                        setDatabaseServiceProxy(databaseServiceProxy);
+
+                        FlywayExecutor.executeDbMigration().onComplete(migrator->
+                        {
+                            if(migrator.succeeded())
+                            {
+                                LOGGER.info("configurations loaded and setting up of configurations completed..");
+                            }
+                            else
+                            {
+                                LOGGER.error("Some issue occurred in db migration "+
+                                        migrator.cause(), migrator.cause().getStackTrace());
+                            }
+                        });
+
+                        promise.complete(true);
+                    }
                 }
             });
         }
@@ -133,7 +139,7 @@ public class ConfigLoaderUtil
         setJwtAuth(jwtAuth);
     }
 
-    public static Future<JsonObject> loadConfig(String configFilePath)
+/*    public static Future<JsonObject> loadConfig(String configFilePath)
     {
         var fileSystem = Bootstrap.getVertx().fileSystem();
 
@@ -142,8 +148,46 @@ public class ConfigLoaderUtil
                 .map(file -> new JsonObject(file.toString()))
                 .onFailure(error -> LOGGER.error("Error reading configuration file: " +
                         error.getMessage(), error.getStackTrace()));
+    }*/
+
+    public static Future<JsonObject> loadConfig()
+    {
+        var promise = Promise.<JsonObject>promise();
+
+        var inputStream = Thread.currentThread().getContextClassLoader()
+                .getResourceAsStream(Constants.CONFIG_FILE);
+
+        if (inputStream == null)
+        {
+            LOGGER.warn("config.json file not found in resources");
+
+            promise.fail("InputStream is null");
+
+            return null;
+        }
+
+        try (var reader = new BufferedReader(new InputStreamReader(inputStream)))
+        {
+            var stringBuilder = new StringBuilder();
+
+            String line;
+
+            while (CommonUtil.isNonNull.test(line = reader.readLine()))
+            {
+                stringBuilder.append(line).append("\n");
+            }
+
+            JsonObject config = new JsonObject(stringBuilder.toString());
+
+            promise.complete(config);
+        }
+        catch (Exception exception)
+        {
+            LOGGER.error(exception.getMessage(),exception.getStackTrace());
+
+            promise.fail(exception);
+        }
+
+        return promise.future();
     }
-
-
-
 }
