@@ -16,8 +16,6 @@ import com.org.motadata.utils.VerticleDeployUtil;
 import io.vertx.core.*;
 
 import java.time.Duration;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Description:
@@ -28,22 +26,21 @@ public class Bootstrap
 {
     private static final LoggerUtil LOGGER = new LoggerUtil(Bootstrap.class);
 
+    private static final int MAX_EXECUTION_TIME = 60;
+
+    private static final int MAX_EVENT_LOOP_POOL_SIZE = 8;
+
+    private static final int MAX_WORKER_POOL_SIZE = 8;
+
     private static final Vertx VERTX = Vertx.vertx(new VertxOptions()
-            .setEventLoopPoolSize(8)
-            .setWorkerPoolSize(16)
-            .setMaxWorkerExecuteTime(Duration.ofSeconds(60).toNanos())
-            .setWarningExceptionTime(Duration.ofSeconds(60).toNanos()));
+            .setEventLoopPoolSize(MAX_EVENT_LOOP_POOL_SIZE)
+            .setWorkerPoolSize(MAX_WORKER_POOL_SIZE)
+            .setMaxWorkerExecuteTime(Duration.ofSeconds(MAX_EXECUTION_TIME).toNanos())
+            .setWarningExceptionTime(Duration.ofSeconds(MAX_EXECUTION_TIME).toNanos()));
 
     public static Vertx getVertx()
     {
         return VERTX;
-    }
-
-    private static final List<Future<String>> DEPLOYMENTS = new ArrayList<>();
-
-    public static List<Future<String>> getDeployments()
-    {
-        return DEPLOYMENTS;
     }
 
     public static void main(String[] args)
@@ -52,7 +49,7 @@ public class Bootstrap
         {
             ConfigLoaderUtil.init().onComplete(booleanAsyncResult ->
             {
-                if(Boolean.TRUE.equals(booleanAsyncResult.result()))
+                if(booleanAsyncResult.result())
                 {
                     var workers = ConfigLoaderUtil.getConfigs().getJsonObject(Constants.WORKERS);
 

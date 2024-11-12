@@ -1,6 +1,5 @@
 package com.org.motadata.utils;
 
-import com.org.motadata.Bootstrap;
 import com.org.motadata.constant.Constants;
 import io.vertx.core.*;
 import io.vertx.core.json.JsonObject;
@@ -50,7 +49,7 @@ public class VerticleDeployUtil
 
                 var options = new DeploymentOptions().setConfig(config).setWorkerPoolSize(noOfWorkers);
 
-                Bootstrap.getDeployments().add(vertx.deployVerticle(className, options));
+                vertx.deployVerticle(className, options);
             }
         }
         catch (Exception exception)
